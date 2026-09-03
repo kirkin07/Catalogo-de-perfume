@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo de Perfumes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+</head>
+<body class="bg-stone-50 text-stone-900 font-sans min-h-screen flex flex-col">
+
+  <!-- Encabezado / Header -->
+  <header class="bg-white border-b border-stone-200 py-6 text-center sticky top-0 z-20 shadow-sm">
+    <h1 class="text-2xl sm:text-3xl font-serif tracking-widest uppercase text-stone-900">Catálogo de Fragancias</h1>
+    <p class="text-xs text-stone-500 uppercase tracking-widest mt-1">Perfumería & Decants</p>
+    
+    <!-- Buscador en tiempo real -->
+    <div class="max-w-md mx-auto mt-4 px-4">
+      <input 
+        type="text" 
+        id="buscador" 
+        placeholder="Buscar por nombre, marca o notas..." 
+        class="w-full px-4 py-2 text-sm border border-stone-300 rounded-full focus:outline-none focus:ring-2 focus:ring-stone-800 bg-stone-50"
+      >
+    </div>
+  </header>
+
+  <!-- Contenedor Principal -->
+  <main class="max-w-6xl mx-auto px-4 py-8 flex-1 w-full">
+    <div id="loading" class="text-center text-stone-500 py-16 text-sm">
+      Cargando catálogo en tiempo real...
+    </div>
+
+    <div id="sin-resultados" class="hidden text-center text-stone-400 py-12 text-sm">
+      No se encontraron perfumes que coincidan con tu búsqueda.
+    </div>
+
+    <div id="catalogo" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"></div>
+  </main>
+
+  <footer class="bg-white border-t border-stone-200 py-6 text-center text-xs text-stone-400">
+    Catálogo Online • Pedidos coordinados por WhatsApp
+  </footer>
+
+  <script>
+    // ==========================================
+    // CONFIGURACIÓN LISTA
+    // ==========================================
+    const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFNTlj-yE_SMRRbYmNmbYC3RX_v4nielA0_1Bu9xxOSBptWIZC_kWoL9mJpPg8n6W5oGxD68lDoyh4/pub?output=csv"; 
+    const TU_WHATSAPP = "5493425524023"; 
+    // ==========================================
+
+    let perfumesData = [];
+
+    // Cargar y procesar la planilla de Google Sheets
+    Papa.parse(GOOGLE_SHEET_CSV_URL, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: function(results) {
+        document.getElementById('loading').classList.add('hidden');
+        // Filtramos filas que tengan al menos el nombre cargado
+        perfumesData = results.data.filter(p => p.nombre && p.nombre.trim() !== "");
+        renderPerfumes(perfumesData);
+      },
+      error: function(err) {
+        document.getElementById('loading').innerText = 'Hubo un error al cargar el catálogo. Verificá la conexión a Google Sheets.';
+        console.error(err);
+      }
+    });
+
+    // Formatear precios numéricos
+    function formatPrecio(val) {
+      if (!val) return "Consultar";
+      const cleanNum = val.toString().replace(/[^0-9]/g, '');
+      return cleanNum ? `$${Number(cleanNum).toLocaleString('es-AR')}` : val;
+    }
+
+    // Adaptar URLs de imágenes en caso de pegar links estándar de ImgBB
+    function fixImageUrl(url) {
+      if (!url) return 'https://via.placeholder.com/300x300?text=Sin+Foto';
+      url = url.trim();
+      if (url.includes('ibb.co/') && !url.includes('i.ibb.co/')) {
+        const id = url.split('/').filter(Boolean).pop();
+        return `https://i.ibb.co/${id}/image.jpg`;
+      }
+      return url;
+    }
+
+    function renderPerfumes(items) {
+      const container = document.getElementById('catalogo');
+      const noResults = document.getElementById('sin-resultados');
+      container.innerHTML = '';
+
+      if (items.length === 0) {
+        noResults.classList.remove('hidden');
+        return;
+      } else {
+        noResults.classList.add('hidden');
+      }
+
+      items.forEach(p => {
+        const stockNormalizado = (p.stock || '').trim().toLowerCase();
+        const hayStock = stockNormalizado === 'si' || stockNormalizado === 'sí' || stockNormalizado === 'true';
+        
+        const nombre = p.nombre ? p.nombre.trim() : '';
+        const marca = p.marca ? p.marca.trim() : '';
+        const tipo = p.tipo ? p.tipo.trim() : '';
+        const ml = p.ml ? p.ml.trim() : '';
+        const precioFormatted = formatPrecio(p.precio);
+        const imgUrl = fixImageUrl(p.imagen);
+
+        const msgWa = encodeURIComponent(`¡Hola! Me interesa consultar por el perfume: ${nombre} (${marca}) de ${ml} - ${precioFormatted}`);
+        const linkWa = `https://wa.me/${TU_WHATSAPP}?text=${msgWa}`;
+
+        const card = document.createElement('div');
+        card.className = "bg-white border border-stone-200 rounded-lg flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-md transition-shadow";
+        card.innerHTML = `
+          <div>
+            <div class="w-full h-44 sm:h-52 bg-stone-100 flex items-center justify-center overflow-hidden relative">
+              <img 
+                src="${imgUrl}" 
+                alt="${nombre}" 
+                class="object-contain w-full h-full p-2"
+                onerror="this.src='https://via.placeholder.com/300x300?text=Perfume'"
+              >
+            </div>
+            <div class="p-3 sm:p-4">
+              <p class="text-[11px] text-stone-400 font-medium tracking-wider uppercase">
+                ${marca} ${tipo ? `• ${tipo}` : ''} ${ml ? `(${ml})` : ''}
+              </p>
+              <h2 class="font-medium text-stone-800 text-sm sm:text-base mt-1 leading-tight">${nombre}</h2>
+              <p class="text-xs text-stone-500 mt-1 line-clamp-2">${p.descripcion || ''}</p>
+              <p class="text-base font-semibold text-stone-900 mt-2">${precioFormatted}</p>
+            </div>
+          </div>
+          <div class="p-3 sm:p-4 pt-0">
+            ${hayStock 
+              ? `<a href="${linkWa}" target="_blank" rel="noopener noreferrer" class="block w-full text-center bg-stone-900 hover:bg-stone-800 text-white text-xs font-medium py-2.5 rounded uppercase tracking-wide transition-colors">Pedir por WhatsApp</a>`
+              : `<button disabled class="w-full bg-stone-200 text-stone-400 text-xs py-2.5 rounded uppercase cursor-not-allowed font-medium">Agotado</button>`
+            }
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Buscador interactivo
+    document.getElementById('buscador').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      const filtrados = perfumesData.filter(p => 
+        (p.nombre && p.nombre.toLowerCase().includes(q)) ||
+        (p.marca && p.marca.toLowerCase().includes(q)) ||
+        (p.descripcion && p.descripcion.toLowerCase().includes(q))
+      );
+      renderPerfumes(filtrados);
+    });
+  </script>
+</body>
+</html>
