@@ -3,104 +3,100 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catálogo de Perfumes</title>
+  <title>Perfumería Cyrax</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
-    /* Ocultar barra de scroll cuando el modal está abierto */
     body.modal-open { overflow: hidden; }
+    /* Estilos personalizados para el scrollbar oscuro */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0a0a0a; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #555; }
   </style>
 </head>
-<body class="bg-stone-50 text-stone-900 font-sans min-h-screen flex flex-col">
+<body class="bg-[#0a0a0a] text-zinc-100 font-sans min-h-screen flex flex-col selection:bg-zinc-700">
 
-  <!-- Encabezado -->
-  <header class="bg-white border-b border-stone-200 py-6 text-center sticky top-0 z-20 shadow-sm">
-    <h1 class="text-2xl sm:text-3xl font-serif tracking-widest uppercase text-stone-900">Catálogo de Fragancias</h1>
-    <p class="text-xs text-stone-500 uppercase tracking-widest mt-1">Precios Minoristas & Mayoristas</p>
-    
-    <!-- Buscador -->
-    <div class="max-w-md mx-auto mt-4 px-4">
-      <input 
-        type="text" 
-        id="buscador" 
-        placeholder="Buscar por nombre, marca o notas..." 
-        class="w-full px-4 py-2.5 text-sm border border-stone-300 rounded-full focus:outline-none focus:ring-2 focus:ring-stone-800 bg-stone-50"
-      >
+  <!-- Header Dark Premium -->
+  <header class="bg-[#0a0a0a]/90 backdrop-blur-md border-b border-zinc-800/50 py-6 sticky top-0 z-20">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="text-center md:text-left">
+        <p class="text-[9px] text-zinc-500 uppercase tracking-[0.3em] font-semibold mb-1">Cyrax</p>
+        <h1 class="text-3xl font-serif text-zinc-100 tracking-wide">Perfumería Cyrax</h1>
+        <p class="text-xs text-zinc-400 font-light tracking-widest mt-1">Perfumes Importados & Decants</p>
+      </div>
+      
+      <div class="w-full md:w-80">
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          <input 
+            type="text" 
+            id="buscador" 
+            placeholder="Buscar marca o fragancia..." 
+            class="w-full pl-9 pr-4 py-2.5 text-sm bg-zinc-900 border border-zinc-800 rounded-full focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 text-zinc-200 placeholder-zinc-500 transition-all"
+          >
+        </div>
+      </div>
     </div>
   </header>
 
-  <!-- Contenedor Principal del Catálogo -->
+  <!-- Contenedor Principal -->
   <main class="max-w-6xl mx-auto px-4 py-8 flex-1 w-full">
-    <div id="loading" class="text-center text-stone-500 py-16 text-sm">
-      Cargando catálogo en tiempo real...
+    <div id="loading" class="text-center text-zinc-500 py-16 text-sm animate-pulse">
+      Cargando catálogo premium...
     </div>
-
-    <div id="sin-resultados" class="hidden text-center text-stone-400 py-12 text-sm">
-      No se encontraron perfumes que coincidan con tu búsqueda.
+    <div id="sin-resultados" class="hidden text-center text-zinc-500 py-12 text-sm">
+      No se encontraron fragancias.
     </div>
-
     <div id="catalogo" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"></div>
   </main>
 
-  <footer class="bg-white border-t border-stone-200 py-6 text-center text-xs text-stone-400">
-    Catálogo Online • Pedidos coordinados por WhatsApp
+  <footer class="border-t border-zinc-800/50 py-8 text-center text-xs text-zinc-600">
+    Perfumería Cyrax • Pedidos coordinados por WhatsApp
   </footer>
 
-  <!-- MODAL / POP-UP DETALLE DE PERFUME -->
-  <div id="modal-detalle" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-    <div class="bg-white rounded-xl max-w-2xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative flex flex-col my-auto">
+  <!-- MODAL / POP-UP OSCURO -->
+  <div id="modal-detalle" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="bg-[#111] border border-zinc-800 rounded-xl max-w-2xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative flex flex-col my-auto">
       
-      <!-- Botón Cerrar (X) -->
-      <button onclick="cerrarModal()" class="absolute top-3 right-3 z-30 bg-stone-100 hover:bg-stone-200 text-stone-700 w-8 h-8 rounded-full flex items-center justify-center font-bold text-base transition-colors">
+      <button onclick="cerrarModal()" class="absolute top-4 right-4 z-30 bg-black/50 hover:bg-zinc-800 text-zinc-300 w-8 h-8 rounded-full flex items-center justify-center text-lg transition-colors border border-zinc-700">
         ✕
       </button>
 
-      <!-- Contenido del modal -->
-      <div class="p-4 sm:p-6 flex flex-col gap-5">
-        
-        <!-- Visor de Foto Grande -->
-        <div class="relative w-full h-72 sm:h-96 bg-stone-100 rounded-lg flex items-center justify-center overflow-hidden">
-          <img id="modal-img" src="" alt="Perfume" class="object-contain w-full h-full p-4 transition-all duration-200">
-          
-          <!-- Flechas de navegación (si tiene varias fotos) -->
-          <button id="modal-prev" onclick="navegarModalFotos(-1)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center text-base">‹</button>
-          <button id="modal-next" onclick="navegarModalFotos(1)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white rounded-full w-8 h-8 flex items-center justify-center text-base">›</button>
+      <div class="p-0 sm:p-0 flex flex-col">
+        <div class="relative w-full h-80 sm:h-96 bg-zinc-900 flex items-center justify-center overflow-hidden rounded-t-xl">
+          <img id="modal-img" src="" alt="Perfume" class="object-cover w-full h-full opacity-90 mix-blend-lighten transition-all duration-300">
+          <button id="modal-prev" onclick="navegarModalFotos(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white rounded-full w-9 h-9 flex items-center justify-center text-lg border border-zinc-700">‹</button>
+          <button id="modal-next" onclick="navegarModalFotos(1)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white rounded-full w-9 h-9 flex items-center justify-center text-lg border border-zinc-700">›</button>
         </div>
 
-        <!-- Miniaturas de fotos (si hay más de 1) -->
-        <div id="modal-thumbs" class="flex gap-2 justify-center overflow-x-auto pb-1"></div>
+        <div id="modal-thumbs" class="flex gap-2 justify-center bg-zinc-900 pb-4 pt-2"></div>
 
-        <!-- Información detallada -->
-        <div>
-          <p id="modal-tags" class="text-xs text-stone-400 uppercase tracking-widest font-semibold"></p>
-          <h2 id="modal-titulo" class="text-xl sm:text-2xl font-serif font-bold text-stone-900 mt-1"></h2>
+        <div class="p-5 sm:p-8">
+          <p id="modal-tags" class="text-xs text-zinc-500 uppercase tracking-widest font-semibold"></p>
+          <h2 id="modal-titulo" class="text-2xl sm:text-3xl font-serif text-zinc-100 mt-2 mb-6"></h2>
 
-          <!-- Precios -->
-          <div class="mt-4 p-3.5 bg-stone-50 border border-stone-200 rounded-lg flex items-center justify-around">
-            <div class="text-center">
-              <span class="text-[11px] text-stone-400 uppercase font-semibold block">Minorista</span>
-              <span id="modal-precio-mino" class="text-lg sm:text-xl font-bold text-stone-900"></span>
+          <div class="grid grid-cols-2 gap-4 border-y border-zinc-800/80 py-4 mb-6 bg-[#161616] rounded-lg px-4">
+            <div>
+              <span class="text-[10px] text-zinc-500 uppercase font-semibold block tracking-wider">Minorista</span>
+              <span id="modal-precio-mino" class="text-xl font-medium text-zinc-100 mt-1 block"></span>
             </div>
-            <div id="modal-box-mayo" class="text-center border-l border-stone-200 pl-6">
-              <span class="text-[11px] text-stone-400 uppercase font-semibold block">Mayorista</span>
-              <span id="modal-precio-mayo" class="text-lg sm:text-xl font-bold text-emerald-700"></span>
+            <div id="modal-box-mayo" class="border-l border-zinc-800 pl-4">
+              <span class="text-[10px] text-zinc-500 uppercase font-semibold block tracking-wider">Mayorista</span>
+              <span id="modal-precio-mayo" class="text-xl font-medium text-emerald-400 mt-1 block"></span>
             </div>
           </div>
 
-          <!-- Descripción completa -->
-          <div class="mt-4">
-            <h3 class="text-xs font-semibold uppercase text-stone-700 tracking-wider">Descripción y notas:</h3>
-            <p id="modal-descripcion" class="text-sm text-stone-600 mt-1.5 leading-relaxed whitespace-pre-line"></p>
+          <div class="mb-8">
+            <h3 class="text-[11px] font-semibold uppercase text-zinc-500 tracking-widest mb-2">Notas Olfativas</h3>
+            <p id="modal-descripcion" class="text-sm text-zinc-300 leading-relaxed whitespace-pre-line font-light"></p>
           </div>
-        </div>
 
-        <!-- Botón de WhatsApp dentro del Pop-up -->
-        <div class="mt-2 pt-2 border-t border-stone-100">
-          <a id="modal-btn-wa" href="#" target="_blank" rel="noopener noreferrer" class="block w-full text-center bg-stone-900 hover:bg-stone-800 text-white text-sm font-medium py-3 rounded-lg uppercase tracking-wider transition-colors shadow">
+          <a id="modal-btn-wa" href="#" target="_blank" rel="noopener noreferrer" class="block w-full flex items-center justify-center gap-2 bg-zinc-100 hover:bg-white text-black text-sm font-semibold py-3.5 rounded-md uppercase tracking-wider transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.386 0 12.032c0 2.652.69 5.234 2.008 7.502L.031 24l4.582-1.202c2.195 1.182 4.673 1.806 7.418 1.806 6.646 0 12.031-5.386 12.031-12.032C24 5.386 18.677 0 12.031 0zm7.147 17.387c-.31.874-1.782 1.637-2.455 1.705-.624.062-1.353.18-4.041-.933-3.441-1.428-5.632-4.93-5.803-5.158-.172-.228-1.385-1.844-1.385-3.518 0-1.674.87-2.52 1.182-2.846.297-.31.643-.388.857-.388.213 0 .426 0 .604.009.186.009.435-.07.677.514.249.601.849 2.073.92 2.22.071.147.116.319.027.501-.09.183-.135.297-.27.453-.135.155-.285.337-.404.472-.135.135-.285.286-.126.56.155.275.69 1.147 1.485 1.857.994.887 1.83 1.161 2.105 1.296.275.135.435.116.595-.062.16-.183.69-.806.879-1.082.189-.275.378-.228.627-.135.249.09 1.58.746 1.85 8.88.271.135.453.228.514.351.062.124.062.723-.248 1.597z"/></svg>
             Pedir por WhatsApp
           </a>
         </div>
-
       </div>
     </div>
   </div>
@@ -121,10 +117,6 @@
         document.getElementById('loading').classList.add('hidden');
         perfumesData = results.data.filter(p => p.nombre && p.nombre.trim() !== "");
         renderPerfumes(perfumesData);
-      },
-      error: function(err) {
-        document.getElementById('loading').innerText = 'Hubo un error al cargar el catálogo.';
-        console.error(err);
       }
     });
 
@@ -135,17 +127,13 @@
     }
 
     function parseImages(str) {
-      if (!str) return ['https://via.placeholder.com/400x400?text=Sin+Foto'];
-      return str.split(',')
-        .map(s => s.trim())
-        .filter(Boolean)
-        .map(url => {
-          if (url.includes('ibb.co/') && !url.includes('i.ibb.co/')) {
-            const id = url.split('/').filter(Boolean).pop();
-            return `https://i.ibb.co/${id}/image.jpg`;
-          }
-          return url;
-        });
+      if (!str) return ['https://via.placeholder.com/400x400/1a1a1a/555555?text=Cyrax'];
+      return str.split(',').map(s => s.trim()).filter(Boolean).map(url => {
+        if (url.includes('ibb.co/') && !url.includes('i.ibb.co/')) {
+          return `https://i.ibb.co/${url.split('/').filter(Boolean).pop()}/image.jpg`;
+        }
+        return url;
+      });
     }
 
     function renderPerfumes(items) {
@@ -154,77 +142,55 @@
       container.innerHTML = '';
 
       if (items.length === 0) {
-        noResults.classList.remove('hidden');
-        return;
+        noResults.classList.remove('hidden'); return;
       } else {
         noResults.classList.add('hidden');
       }
 
       items.forEach((p, idx) => {
-        const stockNormalizado = (p.stock || '').trim().toLowerCase();
-        const hayStock = stockNormalizado === 'si' || stockNormalizado === 'sí' || stockNormalizado === 'true';
+        const stock = (p.stock || '').trim().toLowerCase();
+        const hayStock = stock === 'si' || stock === 'sí' || stock === 'true';
         
-        const nombre = p.nombre ? p.nombre.trim() : '';
-        const marca = p.marca ? p.marca.trim() : '';
-        const tipo = p.tipo ? p.tipo.trim() : '';
-        const ml = p.ml ? p.ml.trim() : '';
-        
+        const nombre = p.nombre || '';
+        const marca = p.marca || '';
+        const tipo = p.tipo || '';
+        const ml = p.ml || '';
         const pMino = formatPrecio(p.precio_minorista || p.precio);
         const pMayo = formatPrecio(p.precio_mayorista);
         const images = parseImages(p.imagen);
 
         const card = document.createElement('div');
-        card.className = "bg-white border border-stone-200 rounded-lg flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer";
-        
-        // Al tocar la tarjeta abre el detalle
-        card.onclick = (e) => {
-          // Evitar abrir si tocó directamente un enlace
-          if (e.target.tagName !== 'A') {
-            abrirModal(idx);
-          }
-        };
+        card.className = "bg-[#111111] border border-zinc-800/80 rounded-xl flex flex-col justify-between overflow-hidden shadow-lg hover:border-zinc-600 transition-all cursor-pointer group";
+        card.onclick = (e) => { if (e.target.tagName !== 'A') abrirModal(idx); };
 
         card.innerHTML = `
           <div>
-            <div class="w-full h-44 sm:h-52 bg-stone-100 flex items-center justify-center overflow-hidden relative">
-              <img 
-                src="${images[0]}" 
-                alt="${nombre}" 
-                class="object-contain w-full h-full p-2.5"
-                onerror="this.src='https://via.placeholder.com/300x300?text=Perfume'"
-              >
-              ${images.length > 1 ? `
-                <span class="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full font-medium">
-                  +${images.length} fotos
-                </span>
-              ` : ''}
+            <div class="w-full h-56 bg-zinc-900/50 flex items-center justify-center overflow-hidden relative p-4">
+              <img src="${images[0]}" alt="${nombre}" class="object-cover w-full h-full opacity-90 group-hover:scale-105 transition-transform duration-500 mix-blend-lighten">
             </div>
-
-            <div class="p-3 sm:p-4">
-              <p class="text-[10px] sm:text-[11px] text-stone-400 font-medium tracking-wider uppercase">
-                ${marca} ${tipo ? `• ${tipo}` : ''} ${ml ? `(${ml})` : ''}
-              </p>
-              <h2 class="font-medium text-stone-800 text-sm sm:text-base mt-0.5 leading-tight">${nombre}</h2>
-              <p class="text-xs text-stone-500 mt-1 line-clamp-2">${p.descripcion || ''}</p>
+            <div class="p-4 sm:p-5">
+              <p class="text-[10px] text-zinc-500 font-semibold tracking-wider uppercase mb-1">${marca}</p>
+              <h2 class="font-serif text-zinc-100 text-lg leading-tight mb-1 truncate">${nombre}</h2>
+              <p class="text-[11px] text-zinc-600 tracking-wide uppercase">${tipo} ${ml ? `• ${ml}` : ''}</p>
               
-              <div class="mt-2.5 pt-2.5 border-t border-stone-100 flex items-baseline justify-between text-xs">
+              <div class="mt-4 pt-4 border-t border-zinc-800/50 flex items-end justify-between">
                 <div>
-                  <span class="text-[9px] text-stone-400 uppercase font-semibold block">Minorista</span>
-                  <span class="text-sm font-bold text-stone-900">${pMino || 'Consultar'}</span>
+                  <span class="text-[9px] text-zinc-500 uppercase font-semibold block mb-0.5 tracking-wider">Minorista</span>
+                  <span class="text-sm font-medium text-zinc-200">${pMino || 'Consultar'}</span>
                 </div>
                 ${pMayo ? `
                   <div class="text-right">
-                    <span class="text-[9px] text-stone-400 uppercase font-semibold block">Mayorista</span>
-                    <span class="text-sm font-bold text-emerald-700">${pMayo}</span>
+                    <span class="text-[9px] text-zinc-500 uppercase font-semibold block mb-0.5 tracking-wider">Mayorista</span>
+                    <span class="text-sm font-medium text-emerald-400">${pMayo}</span>
                   </div>
                 ` : ''}
               </div>
             </div>
           </div>
-
-          <div class="p-3 sm:p-4 pt-0">
-            <span class="block w-full text-center bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-semibold py-2 rounded uppercase tracking-wide transition-colors">
-              Ver detalle
+          <div class="p-4 pt-0">
+            <span class="block w-full text-center bg-zinc-100 hover:bg-white text-black text-[11px] font-bold py-2.5 rounded flex items-center justify-center gap-1.5 uppercase tracking-wider transition-colors">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.386 0 12.032c0 2.652.69 5.234 2.008 7.502L.031 24l4.582-1.202c2.195 1.182 4.673 1.806 7.418 1.806 6.646 0 12.031-5.386 12.031-12.032C24 5.386 18.677 0 12.031 0zm7.147 17.387c-.31.874-1.782 1.637-2.455 1.705-.624.062-1.353.18-4.041-.933-3.441-1.428-5.632-4.93-5.803-5.158-.172-.228-1.385-1.844-1.385-3.518 0-1.674.87-2.52 1.182-2.846.297-.31.643-.388.857-.388.213 0 .426 0 .604.009.186.009.435-.07.677.514.249.601.849 2.073.92 2.22.071.147.116.319.027.501-.09.183-.135.297-.27.453-.135.155-.285.337-.404.472-.135.135-.285.286-.126.56.155.275.69 1.147 1.485 1.857.994.887 1.83 1.161 2.105 1.296.275.135.435.116.595-.062.16-.183.69-.806.879-1.082.189-.275.378-.228.627-.135.249.09 1.58.746 1.85 8.88.271.135.453.228.514.351.062.124.062.723-.248 1.597z"/></svg>
+              Comprar
             </span>
           </div>
         `;
@@ -232,50 +198,35 @@
       });
     }
 
-    // Funciones del Modal (Detalle)
     function abrirModal(index) {
       const p = perfumesData[index];
       if (!p) return;
-
       modalImages = parseImages(p.imagen);
       modalCurrentIdx = 0;
       actualizarFotoModal();
 
-      // Botones de fotos
       const hasMultiple = modalImages.length > 1;
       document.getElementById('modal-prev').style.display = hasMultiple ? 'flex' : 'none';
       document.getElementById('modal-next').style.display = hasMultiple ? 'flex' : 'none';
 
-      // Miniaturas
       const thumbsContainer = document.getElementById('modal-thumbs');
       thumbsContainer.innerHTML = '';
       if (hasMultiple) {
         modalImages.forEach((img, i) => {
           const thumb = document.createElement('img');
           thumb.src = img;
-          thumb.className = `w-12 h-12 object-contain rounded border p-0.5 cursor-pointer ${i === 0 ? 'border-stone-800 ring-1 ring-stone-800' : 'border-stone-200 opacity-60'}`;
-          thumb.onclick = () => {
-            modalCurrentIdx = i;
-            actualizarFotoModal();
-          };
+          thumb.className = `w-14 h-14 object-cover rounded border border-zinc-700 cursor-pointer transition-all ${i === 0 ? 'opacity-100 ring-1 ring-zinc-400' : 'opacity-40 hover:opacity-80'}`;
+          thumb.onclick = () => { modalCurrentIdx = i; actualizarFotoModal(); };
           thumbsContainer.appendChild(thumb);
         });
       }
 
-      // Textos
-      const marca = p.marca ? p.marca.trim() : '';
-      const tipo = p.tipo ? p.tipo.trim() : '';
-      const ml = p.ml ? p.ml.trim() : '';
-      const nombre = p.nombre ? p.nombre.trim() : '';
+      document.getElementById('modal-tags').innerText = `${p.marca || ''} ${p.tipo ? `• ${p.tipo}` : ''} ${p.ml ? `(${p.ml})` : ''}`;
+      document.getElementById('modal-titulo').innerText = p.nombre || '';
+      document.getElementById('modal-descripcion').innerText = p.descripcion || 'Sin descripción detallada.';
 
-      document.getElementById('modal-tags').innerText = `${marca} ${tipo ? `• ${tipo}` : ''} ${ml ? `(${ml})` : ''}`;
-      document.getElementById('modal-titulo').innerText = nombre;
-      document.getElementById('modal-descripcion').innerText = p.descripcion || 'Sin descripción disponible.';
-
-      // Precios
       const pMino = formatPrecio(p.precio_minorista || p.precio);
       const pMayo = formatPrecio(p.precio_mayorista);
-
       document.getElementById('modal-precio-mino').innerText = pMino || 'Consultar';
       
       const boxMayo = document.getElementById('modal-box-mayo');
@@ -286,23 +237,18 @@
         boxMayo.classList.add('hidden');
       }
 
-      // Link de WhatsApp
-      const stockNormalizado = (p.stock || '').trim().toLowerCase();
-      const hayStock = stockNormalizado === 'si' || stockNormalizado === 'sí' || stockNormalizado === 'true';
+      const stock = (p.stock || '').trim().toLowerCase();
+      const hayStock = stock === 'si' || stock === 'sí' || stock === 'true';
       const btnWa = document.getElementById('modal-btn-wa');
 
       if (hayStock) {
-        const msgWa = encodeURIComponent(`¡Hola! Quiero consultar por: ${nombre} (${marca}) de ${ml}. Precio Minorista: ${pMino || 'S/D'} | Mayorista: ${pMayo || 'S/D'}`);
+        const msgWa = encodeURIComponent(`¡Hola! Quiero encargar: ${p.nombre} (${p.marca}) de ${p.ml}.`);
         btnWa.href = `https://wa.me/${TU_WHATSAPP}?text=${msgWa}`;
-        btnWa.innerText = "Pedir por WhatsApp";
-        btnWa.className = "block w-full text-center bg-stone-900 hover:bg-stone-800 text-white text-sm font-medium py-3 rounded-lg uppercase tracking-wider transition-colors shadow";
+        btnWa.style.display = "flex";
       } else {
-        btnWa.removeAttribute('href');
-        btnWa.innerText = "Agotado";
-        btnWa.className = "block w-full text-center bg-stone-200 text-stone-400 text-sm font-medium py-3 rounded-lg uppercase tracking-wider cursor-not-allowed";
+        btnWa.style.display = "none";
       }
 
-      // Mostrar modal
       document.body.classList.add('modal-open');
       document.getElementById('modal-detalle').classList.remove('hidden');
     }
@@ -318,25 +264,17 @@
     }
 
     function actualizarFotoModal() {
-      const imgElem = document.getElementById('modal-img');
-      imgElem.src = modalImages[modalCurrentIdx];
-
+      document.getElementById('modal-img').src = modalImages[modalCurrentIdx];
       const thumbs = document.getElementById('modal-thumbs').children;
       Array.from(thumbs).forEach((t, i) => {
-        if (i === modalCurrentIdx) {
-          t.className = "w-12 h-12 object-contain rounded border-2 border-stone-900 p-0.5 cursor-pointer opacity-100";
-        } else {
-          t.className = "w-12 h-12 object-contain rounded border border-stone-200 p-0.5 cursor-pointer opacity-50";
-        }
+        t.className = `w-14 h-14 object-cover rounded border border-zinc-700 cursor-pointer transition-all ${i === modalCurrentIdx ? 'opacity-100 ring-1 ring-zinc-400' : 'opacity-40 hover:opacity-80'}`;
       });
     }
 
-    // Cerrar tocando afuera de la ventana
     document.getElementById('modal-detalle').addEventListener('click', (e) => {
       if (e.target.id === 'modal-detalle') cerrarModal();
     });
 
-    // Buscador
     document.getElementById('buscador').addEventListener('input', (e) => {
       const q = e.target.value.toLowerCase().trim();
       const filtrados = perfumesData.filter(p => 
