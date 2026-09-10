@@ -8,30 +8,32 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
     body.modal-open { overflow: hidden; }
-    ::-webkit-scrollbar { width: 8px; }
+    /* Barras de scroll oscuras */
+    ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: #0a0a0a; }
     ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #555; }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
   </style>
 </head>
 <body class="bg-[#0a0a0a] text-zinc-100 font-sans min-h-screen flex flex-col selection:bg-zinc-700">
 
   <!-- Header -->
   <header class="bg-[#0a0a0a]/90 backdrop-blur-md border-b border-zinc-800/50 py-6 sticky top-0 z-20">
-    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="text-center md:text-left">
         <p class="text-[9px] text-zinc-500 uppercase tracking-[0.3em] font-semibold mb-1">Cyrax</p>
         <h1 class="text-3xl font-serif text-zinc-100 tracking-wide">Perfumería Cyrax</h1>
         <p class="text-xs text-zinc-400 font-light tracking-widest mt-1">Perfumes Importados & Decants</p>
       </div>
       
-      <div class="w-full md:w-80">
+      <div class="w-full md:w-96">
         <div class="relative">
           <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
           <input 
             type="text" 
             id="buscador" 
-            placeholder="Buscar marca o fragancia..." 
+            placeholder="Buscar fragancia o notas..." 
             class="w-full pl-9 pr-4 py-2.5 text-sm bg-zinc-900 border border-zinc-800 rounded-full focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 text-zinc-200 placeholder-zinc-500 transition-all"
           >
         </div>
@@ -39,18 +41,31 @@
     </div>
   </header>
 
-  <!-- Catálogo -->
-  <main class="max-w-6xl mx-auto px-4 py-8 flex-1 w-full">
-    <div id="loading" class="text-center text-zinc-500 py-16 text-sm animate-pulse">
-      Cargando catálogo premium...
+  <!-- Contenedor Principal con Barra Lateral -->
+  <main class="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-8 w-full flex-1">
+    
+    <!-- Barra lateral de Filtros (Marcas) -->
+    <aside class="w-full md:w-56 flex-shrink-0">
+      <h3 class="text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-4 border-b border-zinc-800/50 pb-2">Filtrar por Marca</h3>
+      <!-- Acá se inyectan las casillas de marcas automáticamente -->
+      <div id="filtros-marcas" class="flex flex-col gap-2 max-h-48 md:max-h-none overflow-y-auto pr-2 custom-scrollbar"></div>
+    </aside>
+
+    <!-- Catálogo de Perfumes -->
+    <div class="flex-1 w-full">
+      <div id="loading" class="text-center text-zinc-500 py-16 text-sm animate-pulse">
+        Cargando catálogo premium...
+      </div>
+      <div id="sin-resultados" class="hidden text-center text-zinc-500 py-12 text-sm">
+        No se encontraron fragancias con esos filtros.
+      </div>
+      <!-- Grid ajustado para convivir con la barra lateral -->
+      <div id="catalogo" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"></div>
     </div>
-    <div id="sin-resultados" class="hidden text-center text-zinc-500 py-12 text-sm">
-      No se encontraron fragancias.
-    </div>
-    <div id="catalogo" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"></div>
+
   </main>
 
-  <footer class="border-t border-zinc-800/50 py-8 text-center text-xs text-zinc-600">
+  <footer class="border-t border-zinc-800/50 py-8 text-center text-xs text-zinc-600 mt-auto">
     Perfumería Cyrax • Pedidos coordinados por WhatsApp
   </footer>
 
@@ -61,11 +76,12 @@
       <button onclick="cerrarModal()" class="absolute top-4 right-4 z-30 bg-black/50 hover:bg-zinc-800 text-zinc-300 w-8 h-8 rounded-full flex items-center justify-center text-lg transition-colors border border-zinc-700">✕</button>
 
       <div class="p-0 sm:p-0 flex flex-col">
-        <!-- Contenedor Foto Grande Modal -->
-        <div class="relative w-full h-80 sm:h-96 bg-zinc-900 flex items-center justify-center overflow-hidden rounded-t-xl">
-          <img id="modal-img" src="" alt="Perfume" class="object-contain w-full h-full p-8 opacity-90 transition-all duration-300">
-          <button id="modal-prev" onclick="navegarModalFotos(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white rounded-full w-9 h-9 flex items-center justify-center text-lg border border-zinc-700">‹</button>
-          <button id="modal-next" onclick="navegarModalFotos(1)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white rounded-full w-9 h-9 flex items-center justify-center text-lg border border-zinc-700">›</button>
+        <!-- Contenedor Foto Grande Modal (con efecto Zoom en PC) -->
+        <div class="relative w-full h-80 sm:h-[26rem] bg-zinc-900 flex items-center justify-center overflow-hidden rounded-t-xl group">
+          <img id="modal-img" src="" alt="Perfume" class="object-contain w-full h-full p-4 opacity-90 transition-transform duration-500 cursor-zoom-in group-hover:scale-[1.35] origin-center">
+          
+          <button id="modal-prev" onclick="navegarModalFotos(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white rounded-full w-9 h-9 flex items-center justify-center text-lg border border-zinc-700 z-10">‹</button>
+          <button id="modal-next" onclick="navegarModalFotos(1)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white rounded-full w-9 h-9 flex items-center justify-center text-lg border border-zinc-700 z-10">›</button>
         </div>
 
         <div id="modal-thumbs" class="flex gap-2 justify-center bg-zinc-900 pb-4 pt-2"></div>
@@ -90,7 +106,7 @@
             <p id="modal-descripcion" class="text-sm text-zinc-300 leading-relaxed whitespace-pre-line font-light"></p>
           </div>
 
-          <a id="modal-btn-wa" href="#" target="_blank" rel="noopener noreferrer" class="block w-full flex items-center justify-center gap-2 bg-zinc-100 hover:bg-white text-black text-sm font-semibold py-3.5 rounded-md uppercase tracking-wider transition-colors">
+          <a id="modal-btn-wa" href="#" target="_blank" rel="noopener noreferrer" class="block w-full flex items-center justify-center gap-2 bg-zinc-100 hover:bg-white text-black text-sm font-semibold py-3.5 rounded-md uppercase tracking-wider transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)]">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.386 0 12.032c0 2.652.69 5.234 2.008 7.502L.031 24l4.582-1.202c2.195 1.182 4.673 1.806 7.418 1.806 6.646 0 12.031-5.386 12.031-12.032C24 5.386 18.677 0 12.031 0zm7.147 17.387c-.31.874-1.782 1.637-2.455 1.705-.624.062-1.353.18-4.041-.933-3.441-1.428-5.632-4.93-5.803-5.158-.172-.228-1.385-1.844-1.385-3.518 0-1.674.87-2.52 1.182-2.846.297-.31.643-.388.857-.388.213 0 .426 0 .604.009.186.009.435-.07.677.514.249.601.849 2.073.92 2.22.071.147.116.319.027.501-.09.183-.135.297-.27.453-.135.155-.285.337-.404.472-.135.135-.285.286-.126.56.155.275.69 1.147 1.485 1.857.994.887 1.83 1.161 2.105 1.296.275.135.435.116.595-.062.16-.183.69-.806.879-1.082.189-.275.378-.228.627-.135.249.09 1.58.746 1.85 8.88.271.135.453.228.514.351.062.124.062.723-.248 1.597z"/></svg>
             Pedir por WhatsApp
           </a>
@@ -107,17 +123,71 @@
     let modalImages = [];
     let modalCurrentIdx = 0;
 
+    // Cargar Datos
     Papa.parse(GOOGLE_SHEET_CSV_URL, {
       download: true,
       header: true,
       skipEmptyLines: true,
       complete: function(results) {
         document.getElementById('loading').classList.add('hidden');
-        perfumesData = results.data.filter(p => p.nombre && p.nombre.trim() !== "");
+        
+        // Filtramos: 1) Que tenga nombre 2) Que el stock sea SI
+        perfumesData = results.data.filter(p => {
+          if (!p.nombre || p.nombre.trim() === "") return false;
+          const stock = (p.stock || '').trim().toLowerCase();
+          return stock === 'si' || stock === 'sí' || stock === 'true';
+        });
+
+        generarFiltrosMarcas();
         renderPerfumes(perfumesData);
       }
     });
 
+    // Crear Checkboxes de Marcas Automáticamente
+    function generarFiltrosMarcas() {
+      // Obtenemos todas las marcas únicas sin repetir y en orden alfabético
+      const marcasUnicas = [...new Set(perfumesData.map(p => p.marca ? p.marca.trim() : ''))].filter(Boolean).sort();
+      const container = document.getElementById('filtros-marcas');
+      
+      if (marcasUnicas.length === 0) {
+        container.innerHTML = '<p class="text-xs text-zinc-600">No hay marcas disponibles.</p>';
+        return;
+      }
+
+      container.innerHTML = marcasUnicas.map(m => `
+        <label class="flex items-center gap-3 text-zinc-400 hover:text-zinc-100 cursor-pointer transition-colors p-1">
+          <input type="checkbox" value="${m}" class="marca-checkbox w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-zinc-100 focus:ring-0 focus:ring-offset-0 accent-zinc-500 cursor-pointer">
+          <span class="text-sm">${m}</span>
+        </label>
+      `).join('');
+
+      // Agregar eventos a las casillas nuevas
+      document.querySelectorAll('.marca-checkbox').forEach(cb => {
+        cb.addEventListener('change', aplicarFiltros);
+      });
+    }
+
+    // Lógica para filtrar combinando Buscador + Checkboxes
+    function aplicarFiltros() {
+      const q = document.getElementById('buscador').value.toLowerCase().trim();
+      const checkboxes = Array.from(document.querySelectorAll('.marca-checkbox:checked')).map(cb => cb.value);
+
+      const filtrados = perfumesData.filter(p => {
+        // Coincidencia con buscador
+        const matchTexto = (p.nombre && p.nombre.toLowerCase().includes(q)) || 
+                           (p.marca && p.marca.toLowerCase().includes(q)) || 
+                           (p.descripcion && p.descripcion.toLowerCase().includes(q));
+        
+        // Coincidencia con marcas seleccionadas (si no hay ninguna tildada, muestra todas)
+        const matchMarca = checkboxes.length === 0 || checkboxes.includes(p.marca.trim());
+
+        return matchTexto && matchMarca;
+      });
+
+      renderPerfumes(filtrados);
+    }
+
+    // Funciones de formato de datos
     function formatPrecio(val) {
       if (!val) return null;
       const cleanNum = val.toString().replace(/[^0-9]/g, '');
@@ -134,6 +204,7 @@
       });
     }
 
+    // Renderizar las Tarjetas
     function renderPerfumes(items) {
       const container = document.getElementById('catalogo');
       const noResults = document.getElementById('sin-resultados');
@@ -145,9 +216,9 @@
         noResults.classList.add('hidden');
       }
 
-      items.forEach((p, idx) => {
-        const stock = (p.stock || '').trim().toLowerCase();
-        const hayStock = stock === 'si' || stock === 'sí' || stock === 'true';
+      items.forEach((p) => {
+        // SOLUCIÓN BUG: Buscamos el ID original en la base de datos completa para abrir el modal correcto
+        const originalIndex = perfumesData.indexOf(p);
         
         const nombre = p.nombre || '';
         const marca = p.marca || '';
@@ -158,13 +229,17 @@
         const images = parseImages(p.imagen);
 
         const card = document.createElement('div');
-        card.className = "bg-[#111111] border border-zinc-800/80 rounded-xl flex flex-col justify-between overflow-hidden shadow-lg hover:border-zinc-600 transition-all cursor-pointer group";
-        card.onclick = (e) => { if (e.target.tagName !== 'A') abrirModal(idx); };
+        card.className = "bg-[#111111] border border-zinc-800/80 rounded-xl flex flex-col justify-between overflow-hidden shadow-lg hover:border-zinc-500 transition-all cursor-pointer group";
+        
+        // Al tocar la tarjeta, abrimos según el índice original guardado
+        card.onclick = (e) => { 
+          if (e.target.tagName !== 'A') abrirModal(originalIndex); 
+        };
 
         card.innerHTML = `
           <div>
-            <!-- Contenedor Foto Chica Tarjeta -->
-            <div class="w-full h-56 bg-zinc-900/50 flex items-center justify-center overflow-hidden relative p-6">
+            <!-- Zoom de foto ajustado a p-2 para que se vea más grande en la tarjeta -->
+            <div class="w-full h-52 sm:h-60 bg-zinc-900/50 flex items-center justify-center overflow-hidden relative p-2">
               <img src="${images[0]}" alt="${nombre}" class="object-contain w-full h-full opacity-90 group-hover:scale-110 transition-transform duration-500">
             </div>
             <div class="p-4 sm:p-5">
@@ -188,8 +263,7 @@
           </div>
           <div class="p-4 pt-0">
             <span class="block w-full text-center bg-zinc-100 hover:bg-white text-black text-[11px] font-bold py-2.5 rounded flex items-center justify-center gap-1.5 uppercase tracking-wider transition-colors">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.386 0 12.032c0 2.652.69 5.234 2.008 7.502L.031 24l4.582-1.202c2.195 1.182 4.673 1.806 7.418 1.806 6.646 0 12.031-5.386 12.031-12.032C24 5.386 18.677 0 12.031 0zm7.147 17.387c-.31.874-1.782 1.637-2.455 1.705-.624.062-1.353.18-4.041-.933-3.441-1.428-5.632-4.93-5.803-5.158-.172-.228-1.385-1.844-1.385-3.518 0-1.674.87-2.52 1.182-2.846.297-.31.643-.388.857-.388.213 0 .426 0 .604.009.186.009.435-.07.677.514.249.601.849 2.073.92 2.22.071.147.116.319.027.501-.09.183-.135.297-.27.453-.135.155-.285.337-.404.472-.135.135-.285.286-.126.56.155.275.69 1.147 1.485 1.857.994.887 1.83 1.161 2.105 1.296.275.135.435.116.595-.062.16-.183.69-.806.879-1.082.189-.275.378-.228.627-.135.249.09 1.58.746 1.85 8.88.271.135.453.228.514.351.062.124.062.723-.248 1.597z"/></svg>
-              Comprar
+              Ver Detalle
             </span>
           </div>
         `;
@@ -197,6 +271,7 @@
       });
     }
 
+    // Sistema del Modal
     function abrirModal(index) {
       const p = perfumesData[index];
       if (!p) return;
@@ -236,17 +311,8 @@
         boxMayo.classList.add('hidden');
       }
 
-      const stock = (p.stock || '').trim().toLowerCase();
-      const hayStock = stock === 'si' || stock === 'sí' || stock === 'true';
-      const btnWa = document.getElementById('modal-btn-wa');
-
-      if (hayStock) {
-        const msgWa = encodeURIComponent(`¡Hola! Quiero encargar: ${p.nombre} (${p.marca}) de ${p.ml}.`);
-        btnWa.href = `https://wa.me/${TU_WHATSAPP}?text=${msgWa}`;
-        btnWa.style.display = "flex";
-      } else {
-        btnWa.style.display = "none";
-      }
+      const msgWa = encodeURIComponent(`¡Hola! Quiero encargar: ${p.nombre} (${p.marca}) de ${p.ml}.`);
+      document.getElementById('modal-btn-wa').href = `https://wa.me/${TU_WHATSAPP}?text=${msgWa}`;
 
       document.body.classList.add('modal-open');
       document.getElementById('modal-detalle').classList.remove('hidden');
@@ -274,15 +340,8 @@
       if (e.target.id === 'modal-detalle') cerrarModal();
     });
 
-    document.getElementById('buscador').addEventListener('input', (e) => {
-      const q = e.target.value.toLowerCase().trim();
-      const filtrados = perfumesData.filter(p => 
-        (p.nombre && p.nombre.toLowerCase().includes(q)) ||
-        (p.marca && p.marca.toLowerCase().includes(q)) ||
-        (p.descripcion && p.descripcion.toLowerCase().includes(q))
-      );
-      renderPerfumes(filtrados);
-    });
+    // Escuchar el buscador
+    document.getElementById('buscador').addEventListener('input', aplicarFiltros);
   </script>
 </body>
 </html>
