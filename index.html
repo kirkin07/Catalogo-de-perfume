@@ -8,7 +8,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
     body.modal-open { overflow: hidden; }
-    /* Barras de scroll oscuras */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: #0a0a0a; }
     ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
@@ -27,16 +26,21 @@
         <p class="text-xs text-zinc-400 font-light tracking-widest mt-1">Perfumes Importados & Decants</p>
       </div>
       
-      <div class="w-full md:w-96">
-        <div class="relative">
+      <!-- Buscador y Botón Menú Móvil -->
+      <div class="w-full md:w-96 flex gap-2">
+        <div class="relative flex-1">
           <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
           <input 
             type="text" 
             id="buscador" 
             placeholder="Buscar fragancia o notas..." 
-            class="w-full pl-9 pr-4 py-2.5 text-sm bg-zinc-900 border border-zinc-800 rounded-full focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 text-zinc-200 placeholder-zinc-500 transition-all"
+            class="w-full pl-9 pr-4 py-2.5 text-sm bg-zinc-900 border border-zinc-800 rounded-lg md:rounded-full focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 text-zinc-200 placeholder-zinc-500 transition-all"
           >
         </div>
+        <button onclick="toggleFiltros()" class="md:hidden bg-zinc-900 border border-zinc-800 text-zinc-300 px-3.5 py-2.5 rounded-lg flex items-center justify-center hover:bg-zinc-800 transition-colors">
+          <!-- Ícono de 3 palitos (Menú Hamburguesa) -->
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
       </div>
     </div>
   </header>
@@ -44,11 +48,10 @@
   <!-- Contenedor Principal con Barra Lateral -->
   <main class="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-8 w-full flex-1">
     
-    <!-- Barra lateral de Filtros (Marcas) -->
-    <aside class="w-full md:w-56 flex-shrink-0">
+    <!-- Barra lateral de Filtros (Oculta en celular, desplegable) -->
+    <aside id="menu-filtros" class="hidden md:block w-full md:w-56 flex-shrink-0 bg-zinc-900/40 md:bg-transparent p-4 md:p-0 border border-zinc-800 md:border-none rounded-xl md:rounded-none">
       <h3 class="text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-4 border-b border-zinc-800/50 pb-2">Filtrar por Marca</h3>
-      <!-- Acá se inyectan las casillas de marcas automáticamente -->
-      <div id="filtros-marcas" class="flex flex-col gap-2 max-h-48 md:max-h-none overflow-y-auto pr-2 custom-scrollbar"></div>
+      <div id="filtros-marcas" class="flex flex-col gap-2 max-h-48 md:max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar"></div>
     </aside>
 
     <!-- Catálogo de Perfumes -->
@@ -59,10 +62,8 @@
       <div id="sin-resultados" class="hidden text-center text-zinc-500 py-12 text-sm">
         No se encontraron fragancias con esos filtros.
       </div>
-      <!-- Grid ajustado para convivir con la barra lateral -->
       <div id="catalogo" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"></div>
     </div>
-
   </main>
 
   <footer class="border-t border-zinc-800/50 py-8 text-center text-xs text-zinc-600 mt-auto">
@@ -76,7 +77,6 @@
       <button onclick="cerrarModal()" class="absolute top-4 right-4 z-30 bg-black/50 hover:bg-zinc-800 text-zinc-300 w-8 h-8 rounded-full flex items-center justify-center text-lg transition-colors border border-zinc-700">✕</button>
 
       <div class="p-0 sm:p-0 flex flex-col">
-        <!-- Contenedor Foto Grande Modal (con efecto Zoom en PC) -->
         <div class="relative w-full h-80 sm:h-[26rem] bg-zinc-900 flex items-center justify-center overflow-hidden rounded-t-xl group">
           <img id="modal-img" src="" alt="Perfume" class="object-contain w-full h-full p-4 opacity-90 transition-transform duration-500 cursor-zoom-in group-hover:scale-[1.35] origin-center">
           
@@ -131,11 +131,10 @@
       complete: function(results) {
         document.getElementById('loading').classList.add('hidden');
         
-        // Filtramos: 1) Que tenga nombre 2) Que el stock sea SI
         perfumesData = results.data.filter(p => {
           if (!p.nombre || p.nombre.trim() === "") return false;
           const stock = (p.stock || '').trim().toLowerCase();
-          return stock === 'si' || stock === 'sí' || stock === 'true';
+          return stock !== 'no'; 
         });
 
         generarFiltrosMarcas();
@@ -143,9 +142,14 @@
       }
     });
 
-    // Crear Checkboxes de Marcas Automáticamente
+    // Desplegar/Ocultar Menú en Celular
+    function toggleFiltros() {
+      const menu = document.getElementById('menu-filtros');
+      menu.classList.toggle('hidden');
+    }
+
+    // Crear Checkboxes de Marcas
     function generarFiltrosMarcas() {
-      // Obtenemos todas las marcas únicas sin repetir y en orden alfabético
       const marcasUnicas = [...new Set(perfumesData.map(p => p.marca ? p.marca.trim() : ''))].filter(Boolean).sort();
       const container = document.getElementById('filtros-marcas');
       
@@ -161,33 +165,27 @@
         </label>
       `).join('');
 
-      // Agregar eventos a las casillas nuevas
       document.querySelectorAll('.marca-checkbox').forEach(cb => {
         cb.addEventListener('change', aplicarFiltros);
       });
     }
 
-    // Lógica para filtrar combinando Buscador + Checkboxes
+    // Filtrar combinando Buscador + Checkboxes
     function aplicarFiltros() {
       const q = document.getElementById('buscador').value.toLowerCase().trim();
       const checkboxes = Array.from(document.querySelectorAll('.marca-checkbox:checked')).map(cb => cb.value);
 
       const filtrados = perfumesData.filter(p => {
-        // Coincidencia con buscador
         const matchTexto = (p.nombre && p.nombre.toLowerCase().includes(q)) || 
                            (p.marca && p.marca.toLowerCase().includes(q)) || 
                            (p.descripcion && p.descripcion.toLowerCase().includes(q));
-        
-        // Coincidencia con marcas seleccionadas (si no hay ninguna tildada, muestra todas)
         const matchMarca = checkboxes.length === 0 || checkboxes.includes(p.marca.trim());
-
         return matchTexto && matchMarca;
       });
 
       renderPerfumes(filtrados);
     }
 
-    // Funciones de formato de datos
     function formatPrecio(val) {
       if (!val) return null;
       const cleanNum = val.toString().replace(/[^0-9]/g, '');
@@ -204,7 +202,6 @@
       });
     }
 
-    // Renderizar las Tarjetas
     function renderPerfumes(items) {
       const container = document.getElementById('catalogo');
       const noResults = document.getElementById('sin-resultados');
@@ -217,9 +214,7 @@
       }
 
       items.forEach((p) => {
-        // SOLUCIÓN BUG: Buscamos el ID original en la base de datos completa para abrir el modal correcto
         const originalIndex = perfumesData.indexOf(p);
-        
         const nombre = p.nombre || '';
         const marca = p.marca || '';
         const tipo = p.tipo || '';
@@ -231,16 +226,22 @@
         const card = document.createElement('div');
         card.className = "bg-[#111111] border border-zinc-800/80 rounded-xl flex flex-col justify-between overflow-hidden shadow-lg hover:border-zinc-500 transition-all cursor-pointer group";
         
-        // Al tocar la tarjeta, abrimos según el índice original guardado
         card.onclick = (e) => { 
           if (e.target.tagName !== 'A') abrirModal(originalIndex); 
         };
 
         card.innerHTML = `
           <div>
-            <!-- Zoom de foto ajustado a p-2 para que se vea más grande en la tarjeta -->
             <div class="w-full h-52 sm:h-60 bg-zinc-900/50 flex items-center justify-center overflow-hidden relative p-2">
-              <img src="${images[0]}" alt="${nombre}" class="object-contain w-full h-full opacity-90 group-hover:scale-110 transition-transform duration-500">
+              <!-- SE AGREGÓ loading="lazy" Y onerror AQUÍ -->
+              <img 
+                loading="lazy" 
+                decoding="async" 
+                src="${images[0]}" 
+                alt="${nombre}" 
+                onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400/1a1a1a/555555?text=Cyrax';"
+                class="object-contain w-full h-full opacity-90 group-hover:scale-110 transition-transform duration-500"
+              >
             </div>
             <div class="p-4 sm:p-5">
               <p class="text-[10px] text-zinc-500 font-semibold tracking-wider uppercase mb-1">${marca}</p>
@@ -271,7 +272,6 @@
       });
     }
 
-    // Sistema del Modal
     function abrirModal(index) {
       const p = perfumesData[index];
       if (!p) return;
@@ -329,7 +329,14 @@
     }
 
     function actualizarFotoModal() {
-      document.getElementById('modal-img').src = modalImages[modalCurrentIdx];
+      const imgElem = document.getElementById('modal-img');
+      imgElem.src = modalImages[modalCurrentIdx];
+      // Agregado onerror también al modal
+      imgElem.onerror = function() {
+        this.onerror=null; 
+        this.src='https://via.placeholder.com/400x400/1a1a1a/555555?text=Cyrax';
+      };
+
       const thumbs = document.getElementById('modal-thumbs').children;
       Array.from(thumbs).forEach((t, i) => {
         t.className = `w-14 h-14 object-cover rounded border border-zinc-700 cursor-pointer transition-all ${i === modalCurrentIdx ? 'opacity-100 ring-1 ring-zinc-400' : 'opacity-40 hover:opacity-80'}`;
@@ -340,7 +347,6 @@
       if (e.target.id === 'modal-detalle') cerrarModal();
     });
 
-    // Escuchar el buscador
     document.getElementById('buscador').addEventListener('input', aplicarFiltros);
   </script>
 </body>
