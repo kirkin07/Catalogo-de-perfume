@@ -38,7 +38,6 @@
           >
         </div>
         <button onclick="toggleFiltros()" class="md:hidden bg-zinc-900 border border-zinc-800 text-zinc-300 px-3.5 py-2.5 rounded-lg flex items-center justify-center hover:bg-zinc-800 transition-colors">
-          <!-- Ícono de 3 palitos (Menú Hamburguesa) -->
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
       </div>
@@ -48,7 +47,7 @@
   <!-- Contenedor Principal con Barra Lateral -->
   <main class="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-8 w-full flex-1">
     
-    <!-- Barra lateral de Filtros (Oculta en celular, desplegable) -->
+    <!-- Barra lateral de Filtros -->
     <aside id="menu-filtros" class="hidden md:block w-full md:w-56 flex-shrink-0 bg-zinc-900/40 md:bg-transparent p-4 md:p-0 border border-zinc-800 md:border-none rounded-xl md:rounded-none">
       <h3 class="text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-4 border-b border-zinc-800/50 pb-2">Filtrar por Marca</h3>
       <div id="filtros-marcas" class="flex flex-col gap-2 max-h-48 md:max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar"></div>
@@ -117,13 +116,13 @@
 
   <script>
     const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFNTlj-yE_SMRRbYmNmbYC3RX_v4nielA0_1Bu9xxOSBptWIZC_kWoL9mJpPg8n6W5oGxD68lDoyh4/pub?output=csv"; 
-    const TU_WHATSAPP = "5493425524023"; 
+    // ACÁ ESTÁ TU NUEVO NÚMERO
+    const TU_WHATSAPP = "5493425929626"; 
 
     let perfumesData = [];
     let modalImages = [];
     let modalCurrentIdx = 0;
 
-    // Cargar Datos
     Papa.parse(GOOGLE_SHEET_CSV_URL, {
       download: true,
       header: true,
@@ -142,13 +141,11 @@
       }
     });
 
-    // Desplegar/Ocultar Menú en Celular
     function toggleFiltros() {
       const menu = document.getElementById('menu-filtros');
       menu.classList.toggle('hidden');
     }
 
-    // Crear Checkboxes de Marcas
     function generarFiltrosMarcas() {
       const marcasUnicas = [...new Set(perfumesData.map(p => p.marca ? p.marca.trim() : ''))].filter(Boolean).sort();
       const container = document.getElementById('filtros-marcas');
@@ -170,7 +167,6 @@
       });
     }
 
-    // Filtrar combinando Buscador + Checkboxes
     function aplicarFiltros() {
       const q = document.getElementById('buscador').value.toLowerCase().trim();
       const checkboxes = Array.from(document.querySelectorAll('.marca-checkbox:checked')).map(cb => cb.value);
@@ -233,7 +229,6 @@
         card.innerHTML = `
           <div>
             <div class="w-full h-52 sm:h-60 bg-zinc-900/50 flex items-center justify-center overflow-hidden relative p-2">
-              <!-- SE AGREGÓ loading="lazy" Y onerror AQUÍ -->
               <img 
                 loading="lazy" 
                 decoding="async" 
@@ -331,7 +326,6 @@
     function actualizarFotoModal() {
       const imgElem = document.getElementById('modal-img');
       imgElem.src = modalImages[modalCurrentIdx];
-      // Agregado onerror también al modal
       imgElem.onerror = function() {
         this.onerror=null; 
         this.src='https://via.placeholder.com/400x400/1a1a1a/555555?text=Cyrax';
