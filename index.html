@@ -44,10 +44,9 @@
     </div>
   </header>
 
-  <!-- Panel Fijo de Filtros para Celulares / Lateral para PC -->
-  <aside id="menu-filtros" class="hidden md:block w-full md:w-56 flex-shrink-0 bg-zinc-900 md:bg-transparent p-5 md:p-0 border-b border-zinc-800 md:border-none z-20 shadow-2xl md:shadow-none fixed md:relative top-[148px] sm:top-[124px] md:top-0 left-0 right-0 max-h-[50vh] md:max-h-none overflow-y-auto custom-scrollbar md:mt-8 md:ml-4">
+  <!-- Panel Fijo de Filtros -->
+  <aside id="menu-filtros" class="hidden md:block w-full md:w-56 flex-shrink-0 bg-zinc-900 md:bg-transparent p-5 md:p-0 border-b border-zinc-800 md:border-none z-20 shadow-2xl md:shadow-none fixed md:sticky top-[148px] sm:top-[124px] md:top-28 left-0 right-0 max-h-[50vh] md:max-h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar md:ml-4">
     
-    <!-- Filtro de Género -->
     <h3 class="text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-4 border-b border-zinc-800/50 pb-2">Filtrar por Género</h3>
     <div class="flex flex-col gap-2 mb-6">
       <label class="flex items-center gap-3 text-zinc-400 hover:text-zinc-100 cursor-pointer transition-colors p-1">
@@ -60,21 +59,20 @@
       </label>
     </div>
 
-    <!-- Filtro de Marca -->
     <h3 class="text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-4 border-b border-zinc-800/50 pb-2">Filtrar por Marca</h3>
     <div id="filtros-marcas" class="flex flex-col gap-2 pb-4"></div>
   </aside>
 
-  <!-- Contenedor Principal (Solo Catálogo) -->
+  <!-- Contenedor Principal -->
   <main class="max-w-7xl mx-auto px-4 py-8 md:py-0 md:mt-8 flex gap-8 w-full flex-1 md:pl-64">
-    <div class="flex-1 w-full">
+    <div class="flex-1 w-full relative z-0">
       <div id="loading" class="text-center text-zinc-500 py-16 text-sm animate-pulse">
         Cargando catálogo premium...
       </div>
       <div id="sin-resultados" class="hidden text-center text-zinc-500 py-12 text-sm">
         No se encontraron fragancias con esos filtros.
       </div>
-      <div id="catalogo" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 relative z-0"></div>
+      <div id="catalogo" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"></div>
     </div>
   </main>
 
@@ -82,18 +80,29 @@
     Perfumería Cyrax • Pedidos coordinados por WhatsApp
   </footer>
 
-  <!-- MODAL / POP-UP -->
+  <!-- MODAL / POP-UP (CON EFECTO DE CARGA) -->
   <div id="modal-detalle" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
     <div class="bg-[#111] border border-zinc-800 rounded-xl max-w-2xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative flex flex-col my-auto">
       
       <button onclick="cerrarModal()" class="absolute top-4 right-4 z-30 bg-black/50 hover:bg-zinc-800 text-zinc-300 w-8 h-8 rounded-full flex items-center justify-center text-lg transition-colors border border-zinc-700">✕</button>
 
       <div class="p-0 sm:p-0 flex flex-col">
+        
+        <!-- Visor Grande con Ruedita de Carga -->
         <div class="relative w-full h-80 sm:h-[26rem] bg-zinc-900 flex items-center justify-center overflow-hidden rounded-t-xl group">
-          <img id="modal-img" src="" alt="Perfume" class="object-contain w-full h-full p-4 opacity-90 transition-transform duration-500 cursor-zoom-in group-hover:scale-[1.35] origin-center">
           
-          <button id="modal-prev" onclick="navegarModalFotos(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white rounded-full w-9 h-9 flex items-center justify-center text-lg border border-zinc-700 z-10">‹</button>
-          <button id="modal-next" onclick="navegarModalFotos(1)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white rounded-full w-9 h-9 flex items-center justify-center text-lg border border-zinc-700 z-10">›</button>
+          <!-- Rueda de carga (Spinner) -->
+          <div class="absolute inset-0 flex items-center justify-center z-0">
+            <div class="w-8 h-8 border-4 border-zinc-800 border-t-zinc-400 rounded-full animate-spin"></div>
+          </div>
+
+          <!-- Imagen con efecto de aparición al cargar -->
+          <img id="modal-img" src="" alt="Perfume" 
+               onload="this.classList.remove('opacity-0'); this.classList.add('opacity-90');"
+               class="object-contain w-full h-full p-4 opacity-0 transition-opacity duration-500 cursor-zoom-in group-hover:scale-[1.35] origin-center relative z-10">
+          
+          <button id="modal-prev" onclick="navegarModalFotos(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white rounded-full w-9 h-9 flex items-center justify-center text-lg border border-zinc-700 z-20">‹</button>
+          <button id="modal-next" onclick="navegarModalFotos(1)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white rounded-full w-9 h-9 flex items-center justify-center text-lg border border-zinc-700 z-20">›</button>
         </div>
 
         <div id="modal-thumbs" class="flex gap-2 justify-center bg-zinc-900 pb-4 pt-2"></div>
@@ -173,7 +182,6 @@
         `).join('');
       }
 
-      // Event Listeners a los filtros de marca y género
       document.querySelectorAll('.marca-checkbox, .genero-checkbox').forEach(cb => {
         cb.addEventListener('change', aplicarFiltros);
       });
@@ -185,15 +193,13 @@
       const checkboxesGeneros = Array.from(document.querySelectorAll('.genero-checkbox:checked')).map(cb => cb.value);
 
       const filtrados = perfumesData.filter(p => {
-        // 1. Match Buscador
         const matchTexto = (p.nombre && p.nombre.toLowerCase().includes(q)) || 
                            (p.marca && p.marca.toLowerCase().includes(q)) || 
-                           (p.descripcion && p.descripcion.toLowerCase().includes(q));
+                           (p.descripcion && p.descripcion.toLowerCase().includes(q)) ||
+                           (p.genero && p.genero.toLowerCase().includes(q));
                            
-        // 2. Match Marca
         const matchMarca = checkboxesMarcas.length === 0 || checkboxesMarcas.includes(p.marca.trim());
         
-        // 3. Match Género Inteligente (Unisex aparece en ambos)
         let matchGenero = true;
         if (checkboxesGeneros.length > 0) {
           const gen = p.genero ? p.genero.toLowerCase().trim() : '';
@@ -242,7 +248,7 @@
         noResults.classList.add('hidden');
       }
 
-      items.forEach((p) => {
+      items.forEach((p, currentPos) => {
         const originalIndex = perfumesData.indexOf(p);
         const nombre = p.nombre || '';
         const marca = p.marca || '';
@@ -252,23 +258,18 @@
         const pMino = formatPrecio(p.precio_minorista || p.precio);
         const pMayo = formatPrecio(p.precio_mayorista);
         const images = parseImages(p.imagen);
+        const prioridadCarga = currentPos < 6 ? 'eager' : 'lazy';
 
         const card = document.createElement('div');
         card.className = "bg-[#111111] border border-zinc-800/80 rounded-xl flex flex-col justify-between overflow-hidden shadow-lg hover:border-zinc-500 transition-all cursor-pointer group";
-        
-        card.onclick = (e) => { 
-          if (e.target.tagName !== 'A') abrirModal(originalIndex); 
-        };
+        card.onclick = (e) => { if (e.target.tagName !== 'A') abrirModal(originalIndex); };
 
         card.innerHTML = `
           <div>
             <div class="w-full h-52 sm:h-60 bg-zinc-900/50 flex items-center justify-center overflow-hidden relative p-2">
-              
-              <!-- Etiqueta Género -->
               ${genero ? `<span class="absolute top-3 left-3 bg-zinc-900/90 backdrop-blur-sm border border-zinc-700 text-zinc-300 text-[9px] px-2 py-0.5 rounded uppercase tracking-widest z-10 shadow-sm">${genero}</span>` : ''}
-              
               <img 
-                loading="lazy" 
+                loading="${prioridadCarga}" 
                 decoding="async" 
                 src="${images[0]}" 
                 alt="${nombre}" 
@@ -365,11 +366,19 @@
 
     function actualizarFotoModal() {
       const imgElem = document.getElementById('modal-img');
-      imgElem.src = modalImages[modalCurrentIdx];
-      imgElem.onerror = function() {
-        this.onerror=null; 
-        this.src='https://via.placeholder.com/400x400/1a1a1a/555555?text=Cyrax';
-      };
+      
+      // Ocultar la foto actual para mostrar el spinner de fondo
+      imgElem.classList.remove('opacity-90');
+      imgElem.classList.add('opacity-0');
+      
+      // Pequeña pausa para que se vea el efecto de transición
+      setTimeout(() => {
+        imgElem.src = modalImages[modalCurrentIdx];
+        imgElem.onerror = function() {
+          this.onerror=null; 
+          this.src='https://via.placeholder.com/400x400/1a1a1a/555555?text=Cyrax';
+        };
+      }, 150);
 
       const thumbs = document.getElementById('modal-thumbs').children;
       Array.from(thumbs).forEach((t, i) => {
