@@ -213,14 +213,20 @@
       const marcasUnicas = [...new Set(perfumesData.map(p => p.marca ? p.marca.trim() : ''))].filter(Boolean).sort();
       const container = document.getElementById('filtros-marcas');
       
-      if (marcasUnicas.length === 0) return;
-      container.innerHTML = marcasUnicas.map(m => `
-        <label class="flex items-center gap-3 text-zinc-400 hover:text-zinc-100 cursor-pointer transition-colors p-1">
-          <input type="checkbox" value="${m}" class="marca-checkbox w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-zinc-100 focus:ring-0 focus:ring-offset-0 accent-zinc-500 cursor-pointer">
-          <span class="text-sm">${m}</span>
-        </label>
-      `).join('');
-      document.querySelectorAll('.marca-checkbox, .genero-checkbox').forEach(cb => cb.addEventListener('change', aplicarFiltros));
+      if (marcasUnicas.length === 0) {
+        container.innerHTML = '<p class="text-xs text-zinc-600">No hay marcas disponibles.</p>';
+      } else {
+        container.innerHTML = marcasUnicas.map(m => `
+          <label class="flex items-center gap-3 text-zinc-400 hover:text-zinc-100 cursor-pointer transition-colors p-1">
+            <input type="checkbox" value="${m}" class="marca-checkbox w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-zinc-100 focus:ring-0 focus:ring-offset-0 accent-zinc-500 cursor-pointer">
+            <span class="text-sm">${m}</span>
+          </label>
+        `).join('');
+      }
+
+      document.querySelectorAll('.marca-checkbox, .genero-checkbox').forEach(cb => {
+        cb.addEventListener('change', aplicarFiltros);
+      });
     }
 
     function aplicarFiltros() {
@@ -235,17 +241,25 @@
                            (p.genero && p.genero.toLowerCase().includes(q));
                            
         const matchMarca = checkboxesMarcas.length === 0 || checkboxesMarcas.includes(p.marca.trim());
+        
         let matchGenero = true;
         if (checkboxesGeneros.length > 0) {
           const gen = p.genero ? p.genero.toLowerCase().trim() : '';
           const mas = checkboxesGeneros.includes('masculino');
           const fem = checkboxesGeneros.includes('femenino');
-          if (mas && fem) matchGenero = (gen === 'masculino' || gen === 'femenino' || gen === 'unisex');
-          else if (mas) matchGenero = (gen === 'masculino' || gen === 'unisex');
-          else if (fem) matchGenero = (gen === 'femenino' || gen === 'unisex');
+
+          if (mas && fem) {
+            matchGenero = (gen === 'masculino' || gen === 'femenino' || gen === 'unisex');
+          } else if (mas) {
+            matchGenero = (gen === 'masculino' || gen === 'unisex');
+          } else if (fem) {
+            matchGenero = (gen === 'femenino' || gen === 'unisex');
+          }
         }
+
         return matchTexto && matchMarca && matchGenero;
       });
+
       renderPerfumes(filtrados);
     }
 
@@ -254,17 +268,13 @@
       const cleanNum = val.toString().replace(/[^0-9]/g, '');
       return cleanNum ? `$${Number(cleanNum).toLocaleString('es-AR')}` : null;
     }
-    
-    function getRawPrecio(val) {
-      if (!val) return 0;
-      const cleanNum = val.toString().replace(/[^0-9]/g, '');
-      return cleanNum ? Number(cleanNum) : 0;
-    }
 
     function parseImages(str) {
       if (!str) return ['https://via.placeholder.com/400x400/1a1a1a/555555?text=Cyrax'];
       return str.split(',').map(s => s.trim()).filter(Boolean).map(url => {
-        if (url.includes('ibb.co/') && !url.includes('i.ibb.co/')) return `https://i.ibb.co/${url.split('/').filter(Boolean).pop()}/image.jpg`;
+        if (url.includes('ibb.co/') && !url.includes('i.ibb.co/')) {
+          return `https://i.ibb.co/${url.split('/').filter(Boolean).pop()}/image.jpg`;
+        }
         return url;
       });
     }
@@ -454,6 +464,9 @@
     document.getElementById('modal-detalle').addEventListener('click', (e) => {
       if (e.target.id === 'modal-detalle') cerrarModal();
     });
+
+    // ¡ACÁ ESTÁ EL BUSCADOR QUE FALTABA!
+    document.getElementById('buscador').addEventListener('input', aplicarFiltros);
 
     function actualizarBadge() {
       const badge = document.getElementById('cart-badge');
