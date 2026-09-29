@@ -17,63 +17,52 @@
 </head>
 <body class="bg-[#0a0a0a] text-zinc-100 font-sans min-h-screen flex flex-col selection:bg-zinc-700 relative">
 
-  <!-- Header Fijo (Sticky) -->
-  <header class="bg-[#0a0a0a]/95 backdrop-blur-md border-b border-zinc-800/50 py-6 sticky top-0 z-50">
+  <!-- Header Fijo -->
+  <header class="bg-[#0a0a0a]/95 backdrop-blur-md border-b border-zinc-800/50 py-6 sticky top-0 z-30">
     <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="text-center md:text-left">
         <p class="text-[9px] text-zinc-500 uppercase tracking-[0.3em] font-semibold mb-1">Cyrax</p>
-        <h1 class="text-3xl font-serif text-zinc-100 tracking-wide">Perfumería Cyrax</h1>
+        <h1 class="text-3xl font-serif text-zinc-100 tracking-wide cursor-pointer" onclick="window.scrollTo(0,0)">Perfumería Cyrax</h1>
         <p class="text-xs text-zinc-400 font-light tracking-widest mt-1">Perfumes Importados & Decants</p>
       </div>
       
-      <!-- Buscador y Botón Menú Móvil -->
-      <div class="w-full md:w-96 flex gap-2">
-        <div class="relative flex-1">
+      <!-- Buscador, Menú y Carrito -->
+      <div class="w-full md:w-auto flex gap-2 items-center">
+        <div class="relative flex-1 md:w-80">
           <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-          <input 
-            type="text" 
-            id="buscador" 
-            placeholder="Buscar fragancia o notas..." 
-            class="w-full pl-9 pr-4 py-2.5 text-sm bg-zinc-900 border border-zinc-800 rounded-lg md:rounded-full focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 text-zinc-200 placeholder-zinc-500 transition-all"
-          >
+          <input type="text" id="buscador" placeholder="Buscar fragancia..." class="w-full pl-9 pr-4 py-2.5 text-sm bg-zinc-900 border border-zinc-800 rounded-lg focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 text-zinc-200 placeholder-zinc-500 transition-all">
         </div>
+        
+        <!-- Botón Filtros (Celular) -->
         <button onclick="toggleFiltros()" class="md:hidden bg-zinc-900 border border-zinc-800 text-zinc-300 px-3.5 py-2.5 rounded-lg flex items-center justify-center hover:bg-zinc-800 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+
+        <!-- Botón Carrito -->
+        <button onclick="toggleCarrito()" class="relative bg-zinc-900 border border-zinc-800 text-zinc-300 px-3.5 py-2.5 rounded-lg flex items-center justify-center hover:bg-zinc-800 transition-colors group">
+          <svg class="w-5 h-5 group-hover:text-zinc-100 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+          <span id="cart-badge" class="absolute -top-2 -right-2 bg-zinc-100 text-black text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-lg transform scale-0 transition-transform duration-300">0</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Contenedor Principal -->
-  <main class="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-8 w-full flex-1">
-    
-    <!-- Panel de Filtros (¡Ajustado el top para móviles!) -->
-    <aside id="menu-filtros" class="hidden md:block w-full md:w-56 flex-shrink-0 bg-zinc-900 md:bg-transparent p-5 md:p-0 border-b border-zinc-800 md:border-none z-40 shadow-2xl md:shadow-none fixed md:sticky top-[190px] sm:top-[170px] md:top-28 left-0 right-0 max-h-[50vh] md:max-h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar">
-      
-      <h3 class="text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-4 border-b border-zinc-800/50 pb-2">Filtrar por Género</h3>
-      <div class="flex flex-col gap-2 mb-6">
-        <label class="flex items-center gap-3 text-zinc-400 hover:text-zinc-100 cursor-pointer transition-colors p-1">
-          <input type="checkbox" value="masculino" class="genero-checkbox w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-zinc-100 focus:ring-0 focus:ring-offset-0 accent-zinc-500 cursor-pointer">
-          <span class="text-sm">Masculino</span>
-        </label>
-        <label class="flex items-center gap-3 text-zinc-400 hover:text-zinc-100 cursor-pointer transition-colors p-1">
-          <input type="checkbox" value="femenino" class="genero-checkbox w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-zinc-100 focus:ring-0 focus:ring-offset-0 accent-zinc-500 cursor-pointer">
-          <span class="text-sm">Femenino</span>
-        </label>
-      </div>
+  <!-- Panel de Filtros -->
+  <aside id="menu-filtros" class="hidden md:block w-full md:w-56 flex-shrink-0 bg-zinc-900 md:bg-transparent p-5 md:p-0 border-b border-zinc-800 md:border-none z-20 shadow-2xl md:shadow-none fixed md:sticky top-[148px] sm:top-[124px] md:top-28 left-0 right-0 max-h-[50vh] md:max-h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar md:ml-4">
+    <h3 class="text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-4 border-b border-zinc-800/50 pb-2">Filtrar por Género</h3>
+    <div class="flex flex-col gap-2 mb-6">
+      <label class="flex items-center gap-3 text-zinc-400 hover:text-zinc-100 cursor-pointer transition-colors p-1"><input type="checkbox" value="masculino" class="genero-checkbox w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-zinc-100 focus:ring-0 focus:ring-offset-0 accent-zinc-500 cursor-pointer"><span class="text-sm">Masculino</span></label>
+      <label class="flex items-center gap-3 text-zinc-400 hover:text-zinc-100 cursor-pointer transition-colors p-1"><input type="checkbox" value="femenino" class="genero-checkbox w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-zinc-100 focus:ring-0 focus:ring-offset-0 accent-zinc-500 cursor-pointer"><span class="text-sm">Femenino</span></label>
+    </div>
+    <h3 class="text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-4 border-b border-zinc-800/50 pb-2">Filtrar por Marca</h3>
+    <div id="filtros-marcas" class="flex flex-col gap-2 pb-4"></div>
+  </aside>
 
-      <h3 class="text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-4 border-b border-zinc-800/50 pb-2">Filtrar por Marca</h3>
-      <div id="filtros-marcas" class="flex flex-col gap-2 pb-4"></div>
-    </aside>
-
-    <!-- Catálogo de Perfumes -->
+  <!-- Contenedor Catálogo -->
+  <main class="max-w-7xl mx-auto px-4 py-8 md:py-0 md:mt-8 flex gap-8 w-full flex-1 md:pl-64">
     <div class="flex-1 w-full relative z-0">
-      <div id="loading" class="text-center text-zinc-500 py-16 text-sm animate-pulse">
-        Cargando catálogo premium...
-      </div>
-      <div id="sin-resultados" class="hidden text-center text-zinc-500 py-12 text-sm">
-        No se encontraron fragancias con esos filtros.
-      </div>
+      <div id="loading" class="text-center text-zinc-500 py-16 text-sm animate-pulse">Cargando catálogo premium...</div>
+      <div id="sin-resultados" class="hidden text-center text-zinc-500 py-12 text-sm">No se encontraron fragancias con esos filtros.</div>
       <div id="catalogo" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"></div>
     </div>
   </main>
@@ -82,56 +71,85 @@
     Perfumería Cyrax • Pedidos coordinados por WhatsApp
   </footer>
 
-  <!-- MODAL / POP-UP (CON EFECTO DE CARGA) -->
-  <div id="modal-detalle" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-    <div class="bg-[#111] border border-zinc-800 rounded-xl max-w-2xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative flex flex-col my-auto">
+  <!-- SIDEBAR DEL CARRITO -->
+  <div id="cart-overlay" onclick="toggleCarrito()" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] hidden opacity-0 transition-opacity duration-300"></div>
+  <div id="cart-panel" class="fixed top-0 right-0 h-full w-full sm:w-[400px] bg-[#0d0d0d] border-l border-zinc-800 shadow-2xl z-[70] transform translate-x-full transition-transform duration-300 flex flex-col">
+    <div class="p-6 border-b border-zinc-800/50 flex justify-between items-center bg-[#111]">
+      <h2 class="text-xl font-serif text-zinc-100 flex items-center gap-2">
+        <svg class="w-5 h-5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+        Tu Pedido
+      </h2>
+      <button onclick="toggleCarrito()" class="text-zinc-500 hover:text-white transition-colors p-1">✕</button>
+    </div>
+    
+    <div id="cart-items" class="flex-1 overflow-y-auto p-4 sm:p-6 flex flex-col gap-4 custom-scrollbar">
+      <!-- Los items se inyectan acá -->
+    </div>
+
+    <div class="p-6 bg-[#111] border-t border-zinc-800/50">
+      <div class="flex justify-between items-end mb-6">
+        <span class="text-zinc-500 text-[11px] uppercase tracking-widest font-semibold block">Total estimado</span>
+        <span id="cart-total" class="text-2xl font-serif text-zinc-100">$0</span>
+      </div>
+      <button onclick="enviarPedidoWhatsApp()" class="w-full bg-zinc-100 hover:bg-white text-black text-sm font-bold py-4 rounded-lg uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.386 0 12.032c0 2.652.69 5.234 2.008 7.502L.031 24l4.582-1.202c2.195 1.182 4.673 1.806 7.418 1.806 6.646 0 12.031-5.386 12.031-12.032C24 5.386 18.677 0 12.031 0zm7.147 17.387c-.31.874-1.782 1.637-2.455 1.705-.624.062-1.353.18-4.041-.933-3.441-1.428-5.632-4.93-5.803-5.158-.172-.228-1.385-1.844-1.385-3.518 0-1.674.87-2.52 1.182-2.846.297-.31.643-.388.857-.388.213 0 .426 0 .604.009.186.009.435-.07.677.514.249.601.849 2.073.92 2.22.071.147.116.319.027.501-.09.183-.135.297-.27.453-.135.155-.285.337-.404.472-.135.135-.285.286-.126.56.155.275.69 1.147 1.485 1.857.994.887 1.83 1.161 2.105 1.296.275.135.435.116.595-.062.16-.183.69-.806.879-1.082.189-.275.378-.228.627-.135.249.09 1.58.746 1.85 8.88.271.135.453.228.514.351.062.124.062.723-.248 1.597z"/></svg>
+        Enviar Pedido
+      </button>
+      <p class="text-center text-[10px] text-zinc-600 mt-3">Al enviar, serás redirigido a WhatsApp con el detalle.</p>
+    </div>
+  </div>
+
+  <!-- MODAL DE PRODUCTO -->
+  <div id="modal-detalle" class="fixed inset-0 z-[50] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="bg-[#111] border border-zinc-800 rounded-xl max-w-2xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative flex flex-col my-auto custom-scrollbar">
       
       <button onclick="cerrarModal()" class="absolute top-4 right-4 z-30 bg-black/50 hover:bg-zinc-800 text-zinc-300 w-8 h-8 rounded-full flex items-center justify-center text-lg transition-colors border border-zinc-700">✕</button>
 
       <div class="p-0 sm:p-0 flex flex-col">
-        
         <div class="relative w-full h-80 sm:h-[26rem] bg-zinc-900 flex items-center justify-center overflow-hidden rounded-t-xl group">
-          
-          <!-- Rueda de carga (Spinner) -->
-          <div class="absolute inset-0 flex items-center justify-center z-0">
-            <div class="w-8 h-8 border-4 border-zinc-800 border-t-zinc-400 rounded-full animate-spin"></div>
-          </div>
-
-          <!-- Imagen -->
-          <img id="modal-img" src="" alt="Perfume" 
-               onload="this.classList.remove('opacity-0'); this.classList.add('opacity-90');"
-               class="object-contain w-full h-full p-4 opacity-0 transition-opacity duration-500 cursor-zoom-in group-hover:scale-[1.35] origin-center relative z-10">
-          
+          <div class="absolute inset-0 flex items-center justify-center z-0"><div class="w-8 h-8 border-4 border-zinc-800 border-t-zinc-400 rounded-full animate-spin"></div></div>
+          <img id="modal-img" src="" alt="Perfume" onload="this.classList.remove('opacity-0'); this.classList.add('opacity-90');" class="object-contain w-full h-full p-4 opacity-0 transition-opacity duration-500 cursor-zoom-in group-hover:scale-[1.35] origin-center relative z-10">
           <button id="modal-prev" onclick="navegarModalFotos(-1)" class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white rounded-full w-9 h-9 flex items-center justify-center text-lg border border-zinc-700 z-20">‹</button>
           <button id="modal-next" onclick="navegarModalFotos(1)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white rounded-full w-9 h-9 flex items-center justify-center text-lg border border-zinc-700 z-20">›</button>
         </div>
-
-        <div id="modal-thumbs" class="flex gap-2 justify-center bg-zinc-900 pb-4 pt-2"></div>
+        <div id="modal-thumbs" class="flex gap-2 justify-center bg-zinc-900 pb-4 pt-2 px-2 overflow-x-auto"></div>
 
         <div class="p-5 sm:p-8">
           <p id="modal-tags" class="text-xs text-zinc-500 uppercase tracking-widest font-semibold"></p>
-          <h2 id="modal-titulo" class="text-2xl sm:text-3xl font-serif text-zinc-100 mt-2 mb-6"></h2>
+          <h2 id="modal-titulo" class="text-2xl sm:text-3xl font-serif text-zinc-100 mt-2 mb-5"></h2>
 
-          <div class="grid grid-cols-2 gap-4 border-y border-zinc-800/80 py-4 mb-6 bg-[#161616] rounded-lg px-4">
-            <div>
-              <span class="text-[10px] text-zinc-500 uppercase font-semibold block tracking-wider">Minorista</span>
-              <span id="modal-precio-mino" class="text-xl font-medium text-zinc-100 mt-1 block"></span>
+          <!-- Bloque Visual de Precios en el Modal -->
+          <div class="flex flex-wrap gap-4 border-y border-zinc-800/80 py-4 mb-5 bg-[#161616] rounded-lg px-4 justify-between">
+            <div id="modal-box-mino" class="hidden flex-1 min-w-[28%]">
+              <span class="text-[9px] text-zinc-500 uppercase font-semibold block tracking-wider mb-1">Minorista</span>
+              <span id="modal-precio-mino" class="text-lg font-medium text-zinc-100 block"></span>
             </div>
-            <div id="modal-box-mayo" class="border-l border-zinc-800 pl-4">
-              <span class="text-[10px] text-zinc-500 uppercase font-semibold block tracking-wider">Mayorista</span>
-              <span id="modal-precio-mayo" class="text-xl font-medium text-emerald-400 mt-1 block"></span>
+            <div id="modal-box-mayo" class="hidden flex-1 min-w-[28%] border-l border-zinc-800 pl-4">
+              <span class="text-[9px] text-zinc-500 uppercase font-semibold block tracking-wider mb-1">Mayorista</span>
+              <span id="modal-precio-mayo" class="text-lg font-medium text-emerald-400 block"></span>
+            </div>
+            <div id="modal-box-decant" class="hidden flex-1 min-w-[28%] border-l border-zinc-800 pl-4">
+              <span class="text-[9px] text-zinc-500 uppercase font-semibold block tracking-wider mb-1 text-amber-500/70">Decant 5ml</span>
+              <span id="modal-precio-decant" class="text-lg font-medium text-amber-400 block"></span>
             </div>
           </div>
 
-          <div class="mb-8">
+          <div class="mb-6">
             <h3 class="text-[11px] font-semibold uppercase text-zinc-500 tracking-widest mb-2">Notas Olfativas</h3>
-            <p id="modal-descripcion" class="text-sm text-zinc-300 leading-relaxed whitespace-pre-line font-light"></p>
+            <p id="modal-descripcion" class="text-sm text-zinc-400 leading-relaxed whitespace-pre-line font-light"></p>
           </div>
 
-          <a id="modal-btn-wa" href="#" target="_blank" rel="noopener noreferrer" class="block w-full flex items-center justify-center gap-2 bg-zinc-100 hover:bg-white text-black text-sm font-semibold py-3.5 rounded-md uppercase tracking-wider transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.386 0 12.032c0 2.652.69 5.234 2.008 7.502L.031 24l4.582-1.202c2.195 1.182 4.673 1.806 7.418 1.806 6.646 0 12.031-5.386 12.031-12.032C24 5.386 18.677 0 12.031 0zm7.147 17.387c-.31.874-1.782 1.637-2.455 1.705-.624.062-1.353.18-4.041-.933-3.441-1.428-5.632-4.93-5.803-5.158-.172-.228-1.385-1.844-1.385-3.518 0-1.674.87-2.52 1.182-2.846.297-.31.643-.388.857-.388.213 0 .426 0 .604.009.186.009.435-.07.677.514.249.601.849 2.073.92 2.22.071.147.116.319.027.501-.09.183-.135.297-.27.453-.135.155-.285.337-.404.472-.135.135-.285.286-.126.56.155.275.69 1.147 1.485 1.857.994.887 1.83 1.161 2.105 1.296.275.135.435.116.595-.062.16-.183.69-.806.879-1.082.189-.275.378-.228.627-.135.249.09 1.58.746 1.85 8.88.271.135.453.228.514.351.062.124.062.723-.248 1.597z"/></svg>
-            Pedir por WhatsApp
-          </a>
+          <!-- Selector de Compra para agregar al Carrito -->
+          <div id="modal-selector-container" class="mb-6 hidden bg-zinc-900/50 p-4 rounded-lg border border-zinc-800/50">
+            <label class="text-[10px] font-semibold uppercase text-zinc-400 tracking-widest mb-2 block">Seleccionar formato para el pedido</label>
+            <select id="modal-variante" class="w-full bg-[#0a0a0a] border border-zinc-700 text-zinc-200 text-sm rounded-md p-3 focus:ring-zinc-500 focus:border-zinc-500 outline-none appearance-none cursor-pointer">
+              <!-- Opciones inyectadas por JS -->
+            </select>
+          </div>
+
+          <button id="modal-btn-add" class="w-full flex items-center justify-center gap-2 bg-zinc-100 hover:bg-white text-black text-sm font-bold py-3.5 rounded-md uppercase tracking-wider transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+            Agregar al Pedido
+          </button>
         </div>
       </div>
     </div>
@@ -144,6 +162,10 @@
     let perfumesData = [];
     let modalImages = [];
     let modalCurrentIdx = 0;
+    let perfumeSeleccionadoGlobal = null;
+    
+    // Sistema del Carrito con LocalStorage (para no perderlo si recarga)
+    let carrito = JSON.parse(localStorage.getItem('cyrax_cart')) || [];
 
     Papa.parse(GOOGLE_SHEET_CSV_URL, {
       download: true,
@@ -151,7 +173,6 @@
       skipEmptyLines: true,
       complete: function(results) {
         document.getElementById('loading').classList.add('hidden');
-        
         perfumesData = results.data.filter(p => {
           if (!p.nombre || p.nombre.trim() === "") return false;
           const stock = (p.stock || '').trim().toLowerCase();
@@ -160,32 +181,46 @@
 
         generarFiltrosMarcas();
         renderPerfumes(perfumesData);
+        actualizarBadge();
+        renderCarritoUI();
       }
     });
 
     function toggleFiltros() {
-      const menu = document.getElementById('menu-filtros');
-      menu.classList.toggle('hidden');
+      document.getElementById('menu-filtros').classList.toggle('hidden');
+    }
+
+    function toggleCarrito() {
+      const panel = document.getElementById('cart-panel');
+      const overlay = document.getElementById('cart-overlay');
+      
+      if (panel.classList.contains('translate-x-full')) {
+        panel.classList.remove('translate-x-full');
+        overlay.classList.remove('hidden');
+        setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+        document.body.classList.add('modal-open');
+      } else {
+        panel.classList.add('translate-x-full');
+        overlay.classList.add('opacity-0');
+        setTimeout(() => overlay.classList.add('hidden'), 300);
+        if(document.getElementById('modal-detalle').classList.contains('hidden')){
+          document.body.classList.remove('modal-open');
+        }
+      }
     }
 
     function generarFiltrosMarcas() {
       const marcasUnicas = [...new Set(perfumesData.map(p => p.marca ? p.marca.trim() : ''))].filter(Boolean).sort();
       const container = document.getElementById('filtros-marcas');
       
-      if (marcasUnicas.length === 0) {
-        container.innerHTML = '<p class="text-xs text-zinc-600">No hay marcas disponibles.</p>';
-      } else {
-        container.innerHTML = marcasUnicas.map(m => `
-          <label class="flex items-center gap-3 text-zinc-400 hover:text-zinc-100 cursor-pointer transition-colors p-1">
-            <input type="checkbox" value="${m}" class="marca-checkbox w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-zinc-100 focus:ring-0 focus:ring-offset-0 accent-zinc-500 cursor-pointer">
-            <span class="text-sm">${m}</span>
-          </label>
-        `).join('');
-      }
-
-      document.querySelectorAll('.marca-checkbox, .genero-checkbox').forEach(cb => {
-        cb.addEventListener('change', aplicarFiltros);
-      });
+      if (marcasUnicas.length === 0) return;
+      container.innerHTML = marcasUnicas.map(m => `
+        <label class="flex items-center gap-3 text-zinc-400 hover:text-zinc-100 cursor-pointer transition-colors p-1">
+          <input type="checkbox" value="${m}" class="marca-checkbox w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-zinc-100 focus:ring-0 focus:ring-offset-0 accent-zinc-500 cursor-pointer">
+          <span class="text-sm">${m}</span>
+        </label>
+      `).join('');
+      document.querySelectorAll('.marca-checkbox, .genero-checkbox').forEach(cb => cb.addEventListener('change', aplicarFiltros));
     }
 
     function aplicarFiltros() {
@@ -200,25 +235,17 @@
                            (p.genero && p.genero.toLowerCase().includes(q));
                            
         const matchMarca = checkboxesMarcas.length === 0 || checkboxesMarcas.includes(p.marca.trim());
-        
         let matchGenero = true;
         if (checkboxesGeneros.length > 0) {
           const gen = p.genero ? p.genero.toLowerCase().trim() : '';
           const mas = checkboxesGeneros.includes('masculino');
           const fem = checkboxesGeneros.includes('femenino');
-
-          if (mas && fem) {
-            matchGenero = (gen === 'masculino' || gen === 'femenino' || gen === 'unisex');
-          } else if (mas) {
-            matchGenero = (gen === 'masculino' || gen === 'unisex');
-          } else if (fem) {
-            matchGenero = (gen === 'femenino' || gen === 'unisex');
-          }
+          if (mas && fem) matchGenero = (gen === 'masculino' || gen === 'femenino' || gen === 'unisex');
+          else if (mas) matchGenero = (gen === 'masculino' || gen === 'unisex');
+          else if (fem) matchGenero = (gen === 'femenino' || gen === 'unisex');
         }
-
         return matchTexto && matchMarca && matchGenero;
       });
-
       renderPerfumes(filtrados);
     }
 
@@ -227,13 +254,17 @@
       const cleanNum = val.toString().replace(/[^0-9]/g, '');
       return cleanNum ? `$${Number(cleanNum).toLocaleString('es-AR')}` : null;
     }
+    
+    function getRawPrecio(val) {
+      if (!val) return 0;
+      const cleanNum = val.toString().replace(/[^0-9]/g, '');
+      return cleanNum ? Number(cleanNum) : 0;
+    }
 
     function parseImages(str) {
       if (!str) return ['https://via.placeholder.com/400x400/1a1a1a/555555?text=Cyrax'];
       return str.split(',').map(s => s.trim()).filter(Boolean).map(url => {
-        if (url.includes('ibb.co/') && !url.includes('i.ibb.co/')) {
-          return `https://i.ibb.co/${url.split('/').filter(Boolean).pop()}/image.jpg`;
-        }
+        if (url.includes('ibb.co/') && !url.includes('i.ibb.co/')) return `https://i.ibb.co/${url.split('/').filter(Boolean).pop()}/image.jpg`;
         return url;
       });
     }
@@ -258,48 +289,49 @@
         const genero = p.genero ? p.genero.trim() : '';
         const pMino = formatPrecio(p.precio_minorista || p.precio);
         const pMayo = formatPrecio(p.precio_mayorista);
+        const pDecant = formatPrecio(p.decant_5ml || p.decant); // Lee la columna decant_5ml
         const images = parseImages(p.imagen);
         const prioridadCarga = currentPos < 6 ? 'eager' : 'lazy';
 
         const card = document.createElement('div');
         card.className = "bg-[#111111] border border-zinc-800/80 rounded-xl flex flex-col justify-between overflow-hidden shadow-lg hover:border-zinc-500 transition-all cursor-pointer group";
-        card.onclick = (e) => { if (e.target.tagName !== 'A') abrirModal(originalIndex); };
+        card.onclick = (e) => { if (e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON') abrirModal(originalIndex); };
 
         card.innerHTML = `
           <div>
             <div class="w-full h-52 sm:h-60 bg-zinc-900/50 flex items-center justify-center overflow-hidden relative p-2">
               ${genero ? `<span class="absolute top-3 left-3 bg-zinc-900/90 backdrop-blur-sm border border-zinc-700 text-zinc-300 text-[9px] px-2 py-0.5 rounded uppercase tracking-widest z-10 shadow-sm">${genero}</span>` : ''}
-              <img 
-                loading="${prioridadCarga}" 
-                decoding="async" 
-                src="${images[0]}" 
-                alt="${nombre}" 
-                onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400/1a1a1a/555555?text=Cyrax';"
-                class="object-contain w-full h-full opacity-90 group-hover:scale-110 transition-transform duration-500"
-              >
+              <img loading="${prioridadCarga}" decoding="async" src="${images[0]}" alt="${nombre}" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400/1a1a1a/555555?text=Cyrax';" class="object-contain w-full h-full opacity-90 group-hover:scale-110 transition-transform duration-500">
             </div>
             <div class="p-4 sm:p-5">
               <p class="text-[10px] text-zinc-500 font-semibold tracking-wider uppercase mb-1">${marca}</p>
               <h2 class="font-serif text-zinc-100 text-lg leading-tight mb-1 truncate">${nombre}</h2>
               <p class="text-[11px] text-zinc-600 tracking-wide uppercase">${tipo} ${ml ? `• ${ml}` : ''}</p>
               
-              <div class="mt-4 pt-4 border-t border-zinc-800/50 flex items-end justify-between">
-                <div>
+              <!-- Precios flex wrap para acomodar los 3 si existen -->
+              <div class="mt-4 pt-3 border-t border-zinc-800/50 flex flex-wrap justify-between gap-y-3 gap-x-2">
+                <div class="min-w-[45%]">
                   <span class="text-[9px] text-zinc-500 uppercase font-semibold block mb-0.5 tracking-wider">Minorista</span>
                   <span class="text-sm font-medium text-zinc-200">${pMino || 'Consultar'}</span>
                 </div>
                 ${pMayo ? `
-                  <div class="text-right">
+                  <div class="min-w-[45%] text-right">
                     <span class="text-[9px] text-zinc-500 uppercase font-semibold block mb-0.5 tracking-wider">Mayorista</span>
                     <span class="text-sm font-medium text-emerald-400">${pMayo}</span>
+                  </div>
+                ` : ''}
+                ${pDecant ? `
+                  <div class="w-full bg-zinc-900/50 rounded p-1.5 mt-1 border border-zinc-800/50 flex justify-between items-center">
+                    <span class="text-[9px] text-amber-500/70 uppercase font-semibold tracking-wider">Decant 5ml</span>
+                    <span class="text-xs font-medium text-amber-400">${pDecant}</span>
                   </div>
                 ` : ''}
               </div>
             </div>
           </div>
           <div class="p-4 pt-0">
-            <span class="block w-full text-center bg-zinc-100 hover:bg-white text-black text-[11px] font-bold py-2.5 rounded flex items-center justify-center gap-1.5 uppercase tracking-wider transition-colors">
-              Ver Detalle
+            <span class="block w-full text-center bg-zinc-800 hover:bg-zinc-700 text-white text-[10px] font-bold py-2.5 rounded uppercase tracking-wider transition-colors border border-zinc-700">
+              Ver y Agregar
             </span>
           </div>
         `;
@@ -310,6 +342,7 @@
     function abrirModal(index) {
       const p = perfumesData[index];
       if (!p) return;
+      perfumeSeleccionadoGlobal = index;
       modalImages = parseImages(p.imagen);
       modalCurrentIdx = 0;
       actualizarFotoModal();
@@ -324,7 +357,7 @@
         modalImages.forEach((img, i) => {
           const thumb = document.createElement('img');
           thumb.src = img;
-          thumb.className = `w-14 h-14 object-cover rounded border border-zinc-700 cursor-pointer transition-all ${i === 0 ? 'opacity-100 ring-1 ring-zinc-400' : 'opacity-40 hover:opacity-80'}`;
+          thumb.className = `w-14 h-14 object-cover rounded border border-zinc-700 cursor-pointer transition-all ${i === 0 ? 'opacity-100 ring-1 ring-zinc-400' : 'opacity-40 hover:opacity-80'} flex-shrink-0`;
           thumb.onclick = () => { modalCurrentIdx = i; actualizarFotoModal(); };
           thumbsContainer.appendChild(thumb);
         });
@@ -332,31 +365,69 @@
 
       const generoTag = p.genero ? `${p.genero.trim()} • ` : '';
       document.getElementById('modal-tags').innerText = `${p.marca || ''} • ${generoTag}${p.tipo ? `${p.tipo}` : ''} ${p.ml ? `(${p.ml})` : ''}`;
-      
       document.getElementById('modal-titulo').innerText = p.nombre || '';
       document.getElementById('modal-descripcion').innerText = p.descripcion || 'Sin descripción detallada.';
 
+      // Lógica de Precios en el Modal
       const pMino = formatPrecio(p.precio_minorista || p.precio);
       const pMayo = formatPrecio(p.precio_mayorista);
-      document.getElementById('modal-precio-mino').innerText = pMino || 'Consultar';
+      const pDecant = formatPrecio(p.decant_5ml || p.decant);
       
+      const boxMino = document.getElementById('modal-box-mino');
       const boxMayo = document.getElementById('modal-box-mayo');
+      const boxDecant = document.getElementById('modal-box-decant');
+      const selectorContainer = document.getElementById('modal-selector-container');
+      const btnAdd = document.getElementById('modal-btn-add');
+      const selectVariante = document.getElementById('modal-variante');
+      
+      selectVariante.innerHTML = ''; // Limpiar opciones
+
+      if (pMino) {
+        boxMino.classList.remove('hidden');
+        document.getElementById('modal-precio-mino').innerText = pMino;
+        selectVariante.innerHTML += `<option value="Minorista|${getRawPrecio(p.precio_minorista || p.precio)}">Botella Cerrada (Minorista) - ${pMino}</option>`;
+      } else {
+        boxMino.classList.add('hidden');
+      }
+
       if (pMayo) {
         boxMayo.classList.remove('hidden');
         document.getElementById('modal-precio-mayo').innerText = pMayo;
+        selectVariante.innerHTML += `<option value="Mayorista|${getRawPrecio(p.precio_mayorista)}">Botella Cerrada (Mayorista) - ${pMayo}</option>`;
       } else {
         boxMayo.classList.add('hidden');
       }
 
-      const msgWa = encodeURIComponent(`¡Hola! Quiero encargar: ${p.nombre} (${p.marca}) de ${p.ml}.`);
-      document.getElementById('modal-btn-wa').href = `https://wa.me/${TU_WHATSAPP}?text=${msgWa}`;
+      if (pDecant) {
+        boxDecant.classList.remove('hidden');
+        document.getElementById('modal-precio-decant').innerText = pDecant;
+        selectVariante.innerHTML += `<option value="Decant 5ml|${getRawPrecio(p.decant_5ml || p.decant)}">Decant 5ml - ${pDecant}</option>`;
+      } else {
+        boxDecant.classList.add('hidden');
+      }
+
+      // Si no hay ningún precio, deshabilitar agregar al carrito y mandar directo a WA
+      if (!pMino && !pMayo && !pDecant) {
+        selectorContainer.classList.add('hidden');
+        btnAdd.innerHTML = 'Consultar Precio';
+        btnAdd.onclick = () => {
+          const msg = encodeURIComponent(`¡Hola! Quiero consultar el precio y stock de: ${p.nombre} (${p.marca}).`);
+          window.open(`https://wa.me/${TU_WHATSAPP}?text=${msg}`, '_blank');
+        };
+      } else {
+        selectorContainer.classList.remove('hidden');
+        btnAdd.innerHTML = 'Agregar al Pedido';
+        btnAdd.onclick = agregarAlCarrito;
+      }
 
       document.body.classList.add('modal-open');
       document.getElementById('modal-detalle').classList.remove('hidden');
     }
 
     function cerrarModal() {
-      document.body.classList.remove('modal-open');
+      if (document.getElementById('cart-panel').classList.contains('translate-x-full')) {
+        document.body.classList.remove('modal-open');
+      }
       document.getElementById('modal-detalle').classList.add('hidden');
     }
 
@@ -367,29 +438,154 @@
 
     function actualizarFotoModal() {
       const imgElem = document.getElementById('modal-img');
-      
       imgElem.classList.remove('opacity-90');
       imgElem.classList.add('opacity-0');
       
       setTimeout(() => {
         imgElem.src = modalImages[modalCurrentIdx];
         imgElem.onerror = function() {
-          this.onerror=null; 
-          this.src='https://via.placeholder.com/400x400/1a1a1a/555555?text=Cyrax';
+          this.onerror=null; this.src='https://via.placeholder.com/400x400/1a1a1a/555555?text=Cyrax';
         };
       }, 150);
 
       const thumbs = document.getElementById('modal-thumbs').children;
       Array.from(thumbs).forEach((t, i) => {
-        t.className = `w-14 h-14 object-cover rounded border border-zinc-700 cursor-pointer transition-all ${i === modalCurrentIdx ? 'opacity-100 ring-1 ring-zinc-400' : 'opacity-40 hover:opacity-80'}`;
+        t.className = `w-14 h-14 object-cover rounded border border-zinc-700 cursor-pointer transition-all flex-shrink-0 ${i === modalCurrentIdx ? 'opacity-100 ring-1 ring-zinc-400' : 'opacity-40 hover:opacity-80'}`;
       });
     }
 
     document.getElementById('modal-detalle').addEventListener('click', (e) => {
       if (e.target.id === 'modal-detalle') cerrarModal();
     });
-
     document.getElementById('buscador').addEventListener('input', aplicarFiltros);
+
+
+    // ==========================================
+    // LÓGICA DEL CARRITO DE COMPRAS
+    // ==========================================
+    
+    function actualizarBadge() {
+      const badge = document.getElementById('cart-badge');
+      const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+      
+      if (totalItems > 0) {
+        badge.innerText = totalItems;
+        badge.classList.remove('scale-0');
+      } else {
+        badge.classList.add('scale-0');
+      }
+      localStorage.setItem('cyrax_cart', JSON.stringify(carrito));
+    }
+
+    function agregarAlCarrito() {
+      if (perfumeSeleccionadoGlobal === null) return;
+      const p = perfumesData[perfumeSeleccionadoGlobal];
+      const select = document.getElementById('modal-variante');
+      
+      if (!select.value) return;
+      const [formato, precioStr] = select.value.split('|');
+      const precioNum = Number(precioStr);
+
+      // Revisar si ya está en el carrito con el mismo formato
+      const itemExistente = carrito.find(i => i.index === perfumeSeleccionadoGlobal && i.formato === formato);
+      
+      if (itemExistente) {
+        itemExistente.cantidad += 1;
+      } else {
+        carrito.push({
+          index: perfumeSeleccionadoGlobal,
+          nombre: p.nombre,
+          marca: p.marca,
+          ml: p.ml,
+          formato: formato,
+          precio: precioNum,
+          imagen: parseImages(p.imagen)[0],
+          cantidad: 1
+        });
+      }
+
+      actualizarBadge();
+      renderCarritoUI();
+      cerrarModal();
+      toggleCarrito(); // Abre el carrito visualmente para confirmar
+    }
+
+    function cambiarCantidadCart(cartIndex, delta) {
+      carrito[cartIndex].cantidad += delta;
+      if (carrito[cartIndex].cantidad <= 0) {
+        carrito.splice(cartIndex, 1);
+      }
+      actualizarBadge();
+      renderCarritoUI();
+    }
+
+    function renderCarritoUI() {
+      const container = document.getElementById('cart-items');
+      const lblTotal = document.getElementById('cart-total');
+      container.innerHTML = '';
+      let total = 0;
+
+      if (carrito.length === 0) {
+        container.innerHTML = `
+          <div class="text-center text-zinc-500 mt-10">
+            <svg class="w-12 h-12 mx-auto mb-3 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <p class="text-sm">Tu carrito está vacío.</p>
+          </div>
+        `;
+        lblTotal.innerText = '$0';
+        return;
+      }
+
+      carrito.forEach((item, index) => {
+        const subtotal = item.precio * item.cantidad;
+        total += subtotal;
+
+        // Colorcito del badge según el formato
+        let colorFmt = 'text-zinc-400 bg-zinc-800';
+        if(item.formato === 'Mayorista') colorFmt = 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
+        if(item.formato === 'Decant 5ml') colorFmt = 'text-amber-400 bg-amber-400/10 border-amber-400/20';
+
+        container.innerHTML += `
+          <div class="flex gap-4 bg-zinc-900/50 p-3 rounded-lg border border-zinc-800/80 items-center">
+            <img src="${item.imagen}" class="w-16 h-16 object-contain bg-zinc-900 rounded p-1" alt="${item.nombre}">
+            <div class="flex-1">
+              <h4 class="text-sm font-semibold text-zinc-100 leading-tight">${item.nombre}</h4>
+              <p class="text-[10px] text-zinc-500 uppercase tracking-widest mt-0.5">${item.marca}</p>
+              <div class="mt-1.5 inline-block text-[9px] border px-1.5 py-0.5 rounded uppercase font-semibold ${colorFmt}">${item.formato}</div>
+              <p class="text-xs font-medium text-zinc-300 mt-1">$${item.precio.toLocaleString('es-AR')}</p>
+            </div>
+            
+            <div class="flex flex-col items-center gap-2">
+              <button onclick="cambiarCantidadCart(${index}, 1)" class="w-7 h-7 bg-zinc-800 hover:bg-zinc-700 text-white rounded flex items-center justify-center transition-colors">+</button>
+              <span class="text-sm font-bold w-4 text-center">${item.cantidad}</span>
+              <button onclick="cambiarCantidadCart(${index}, -1)" class="w-7 h-7 bg-zinc-800 hover:bg-zinc-700 text-white rounded flex items-center justify-center transition-colors">-</button>
+            </div>
+          </div>
+        `;
+      });
+
+      lblTotal.innerText = `$${total.toLocaleString('es-AR')}`;
+    }
+
+    function enviarPedidoWhatsApp() {
+      if (carrito.length === 0) return;
+      
+      let total = 0;
+      let msg = "🛒 *NUEVO PEDIDO - CYRAX*%0A%0A";
+      
+      carrito.forEach(item => {
+        const sub = item.precio * item.cantidad;
+        total += sub;
+        msg += `▪️ ${item.cantidad}x *${item.nombre}* (${item.marca})%0A`;
+        msg += `   ↳ Formato: ${item.formato} - $${item.precio.toLocaleString('es-AR')}%0A%0A`;
+      });
+      
+      msg += `*TOTAL ESTIMADO: $${total.toLocaleString('es-AR')}*%0A%0A`;
+      msg += `(Enviado desde el catálogo web)`;
+
+      window.open(`https://wa.me/${TU_WHATSAPP}?text=${msg}`, '_blank');
+    }
+
   </script>
 </body>
 </html>
