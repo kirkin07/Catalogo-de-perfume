@@ -47,7 +47,7 @@
     </div>
   </header>
 
-  <!-- Contenedor Principal -->
+  <!-- Contenedor Principal (Catálogo y Filtros) -->
   <main class="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-8 w-full flex-1">
     
     <!-- Panel de Filtros -->
@@ -104,9 +104,7 @@
   <!-- MODAL DE PRODUCTO -->
   <div id="modal-detalle" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-6 overflow-y-auto" style="z-index: 9999;">
     <div class="bg-[#111] border border-zinc-800 rounded-xl max-w-2xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative flex flex-col my-auto custom-scrollbar">
-      
       <button onclick="cerrarModal()" class="absolute top-4 right-4 z-30 bg-black/50 hover:bg-zinc-800 text-zinc-300 w-8 h-8 rounded-full flex items-center justify-center text-lg transition-colors border border-zinc-700">✕</button>
-
       <div class="p-0 sm:p-0 flex flex-col">
         <div class="relative w-full h-80 sm:h-[26rem] bg-zinc-900 flex items-center justify-center overflow-hidden rounded-t-xl group">
           <div class="absolute inset-0 flex items-center justify-center z-0"><div class="w-8 h-8 border-4 border-zinc-800 border-t-zinc-400 rounded-full animate-spin"></div></div>
@@ -115,11 +113,9 @@
           <button id="modal-next" onclick="navegarModalFotos(1)" class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white rounded-full w-9 h-9 flex items-center justify-center text-lg border border-zinc-700 z-20">›</button>
         </div>
         <div id="modal-thumbs" class="flex gap-2 justify-center bg-zinc-900 pb-4 pt-2 px-2 overflow-x-auto"></div>
-
         <div class="p-5 sm:p-8">
           <p id="modal-tags" class="text-xs text-zinc-500 uppercase tracking-widest font-semibold"></p>
           <h2 id="modal-titulo" class="text-2xl sm:text-3xl font-serif text-zinc-100 mt-2 mb-5"></h2>
-
           <div class="flex flex-wrap gap-4 border-y border-zinc-800/80 py-4 mb-5 bg-[#161616] rounded-lg px-4 justify-between">
             <div id="modal-box-mino" class="hidden flex-1 min-w-[28%]">
               <span class="text-[9px] text-zinc-500 uppercase font-semibold block tracking-wider mb-1">Minorista</span>
@@ -134,19 +130,14 @@
               <span id="modal-precio-decant" class="text-lg font-medium text-amber-400 block"></span>
             </div>
           </div>
-
           <div class="mb-6">
             <h3 class="text-[11px] font-semibold uppercase text-zinc-500 tracking-widest mb-2">Notas Olfativas</h3>
             <p id="modal-descripcion" class="text-sm text-zinc-400 leading-relaxed whitespace-pre-line font-light"></p>
           </div>
-
           <div id="modal-selector-container" class="mb-6 hidden bg-zinc-900/50 p-4 rounded-lg border border-zinc-800/50">
             <label class="text-[10px] font-semibold uppercase text-zinc-400 tracking-widest mb-2 block">Seleccionar formato para el pedido</label>
-            <select id="modal-variante" class="w-full bg-[#0a0a0a] border border-zinc-700 text-zinc-200 text-sm rounded-md p-3 focus:ring-zinc-500 focus:border-zinc-500 outline-none appearance-none cursor-pointer">
-              <!-- Opciones -->
-            </select>
+            <select id="modal-variante" class="w-full bg-[#0a0a0a] border border-zinc-700 text-zinc-200 text-sm rounded-md p-3 focus:ring-zinc-500 focus:border-zinc-500 outline-none appearance-none cursor-pointer"></select>
           </div>
-
           <button id="modal-btn-add" class="w-full flex items-center justify-center gap-2 bg-zinc-100 hover:bg-white text-black text-sm font-bold py-3.5 rounded-md uppercase tracking-wider transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)]">
             Agregar al Pedido
           </button>
@@ -156,4 +147,476 @@
   </div>
 
   <script>
-    const GOOGLE_SHEET_CSV_URL = "
+    // DETECTOR DE ERRORES VISUALES (Si hay un error de código, te lo muestra en la pantalla)
+    window.addEventListener('error', function(e) {
+      const loading = document.getElementById('loading');
+      if (loading) {
+        loading.classList.remove('animate-pulse');
+        loading.innerHTML = `<span style="color: #ef4444; font-weight: bold;">Error detectado en la web:</span><br>${e.message}<br><br><span style="font-size: 11px;">Mostrame una captura de esto.</span>`;
+      }
+    });
+
+    const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFNTlj-yE_SMRRbYmNmbYC3RX_v4nielA0_1Bu9xxOSBptWIZC_kWoL9mJpPg8n6W5oGxD68lDoyh4/pub?output=csv"; 
+    const TU_WHATSAPP = "5493425929626"; 
+
+    let perfumesData = [];
+    let modalImages = [];
+    let modalCurrentIdx = 0;
+    let perfumeSeleccionadoGlobal = null;
+    let carrito = [];
+    
+    // SISTEMA ANTI-CORRUPCIÓN DEL CARRITO
+    try {
+      const savedCart = localStorage.getItem('syrax_cart');
+      if (savedCart) {
+        const parsed = JSON.parse(savedCart);
+        if (Array.isArray(parsed)) {
+            carrito = parsed;
+        } else {
+            localStorage.removeItem('syrax_cart');
+        }
+      }
+    } catch (e) {
+      console.error("Error leyendo carrito, borrando datos corruptos...");
+      localStorage.removeItem('syrax_cart');
+    }
+
+    // CARGA DE GOOGLE SHEETS
+    Papa.parse(GOOGLE_SHEET_CSV_URL, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: function(results) {
+        document.getElementById('loading').classList.add('hidden');
+        perfumesData = results.data.filter(p => {
+          if (!p || !p.nombre || p.nombre.trim() === "") return false;
+          const stock = (p.stock || '').trim().toLowerCase();
+          return stock !== 'no'; 
+        });
+
+        generarFiltrosMarcas();
+        renderPerfumes(perfumesData);
+        actualizarBadge();
+        renderCarritoUI();
+      },
+      error: function(error) {
+        const loading = document.getElementById('loading');
+        loading.classList.remove('animate-pulse');
+        loading.innerHTML = `<span style="color: #ef4444; font-weight: bold;">Error al conectar con tu Google Sheets.</span><br><br>Verificá en Google Sheets si tocaste sin querer Archivo -> Compartir -> Publicar en la web, y asegurate de que siga publicado.`;
+      }
+    });
+
+    function toggleFiltros() {
+      document.getElementById('menu-filtros').classList.toggle('hidden');
+    }
+
+    function toggleCarrito() {
+      const panel = document.getElementById('cart-panel');
+      const overlay = document.getElementById('cart-overlay');
+      
+      if (panel.classList.contains('translate-x-full')) {
+        panel.classList.remove('translate-x-full');
+        overlay.classList.remove('hidden');
+        setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+        document.body.classList.add('modal-open');
+      } else {
+        panel.classList.add('translate-x-full');
+        overlay.classList.add('opacity-0');
+        setTimeout(() => overlay.classList.add('hidden'), 300);
+        if(document.getElementById('modal-detalle').classList.contains('hidden')){
+          document.body.classList.remove('modal-open');
+        }
+      }
+    }
+
+    function generarFiltrosMarcas() {
+      const marcasUnicas = [...new Set(perfumesData.map(p => p.marca ? p.marca.trim() : ''))].filter(Boolean).sort();
+      const container = document.getElementById('filtros-marcas');
+      
+      if (marcasUnicas.length === 0) {
+        container.innerHTML = '<p class="text-xs text-zinc-600">No hay marcas disponibles.</p>';
+      } else {
+        container.innerHTML = marcasUnicas.map(m => `
+          <label class="flex items-center gap-3 text-zinc-400 hover:text-zinc-100 cursor-pointer transition-colors p-1">
+            <input type="checkbox" value="${m}" class="marca-checkbox w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-zinc-100 focus:ring-0 focus:ring-offset-0 accent-zinc-500 cursor-pointer">
+            <span class="text-sm">${m}</span>
+          </label>
+        `).join('');
+      }
+
+      document.querySelectorAll('.marca-checkbox, .genero-checkbox').forEach(cb => {
+        cb.addEventListener('change', aplicarFiltros);
+      });
+    }
+
+    function aplicarFiltros() {
+      const q = document.getElementById('buscador').value.toLowerCase().trim();
+      const checkboxesMarcas = Array.from(document.querySelectorAll('.marca-checkbox:checked')).map(cb => cb.value);
+      const checkboxesGeneros = Array.from(document.querySelectorAll('.genero-checkbox:checked')).map(cb => cb.value);
+
+      const filtrados = perfumesData.filter(p => {
+        const matchTexto = (p.nombre && p.nombre.toLowerCase().includes(q)) || 
+                           (p.marca && p.marca.toLowerCase().includes(q)) || 
+                           (p.descripcion && p.descripcion.toLowerCase().includes(q)) ||
+                           (p.genero && p.genero.toLowerCase().includes(q));
+                           
+        const matchMarca = checkboxesMarcas.length === 0 || checkboxesMarcas.includes(p.marca.trim());
+        
+        let matchGenero = true;
+        if (checkboxesGeneros.length > 0) {
+          const gen = p.genero ? p.genero.toLowerCase().trim() : '';
+          const mas = checkboxesGeneros.includes('masculino');
+          const fem = checkboxesGeneros.includes('femenino');
+
+          if (mas && fem) {
+            matchGenero = (gen === 'masculino' || gen === 'femenino' || gen === 'unisex');
+          } else if (mas) {
+            matchGenero = (gen === 'masculino' || gen === 'unisex');
+          } else if (fem) {
+            matchGenero = (gen === 'femenino' || gen === 'unisex');
+          }
+        }
+
+        return matchTexto && matchMarca && matchGenero;
+      });
+
+      renderPerfumes(filtrados);
+    }
+
+    function formatPrecio(val) {
+      if (!val) return null;
+      const cleanNum = val.toString().replace(/[^0-9]/g, '');
+      return cleanNum ? `$${Number(cleanNum).toLocaleString('es-AR')}` : null;
+    }
+    
+    function getRawPrecio(val) {
+      if (!val) return 0;
+      const cleanNum = val.toString().replace(/[^0-9]/g, '');
+      return cleanNum ? Number(cleanNum) : 0;
+    }
+
+    function parseImages(str) {
+      if (!str) return ['https://via.placeholder.com/400x400/1a1a1a/555555?text=Syrax'];
+      return str.split(',').map(s => s.trim()).filter(Boolean).map(url => {
+        if (url.includes('ibb.co/') && !url.includes('i.ibb.co/')) {
+          return `https://i.ibb.co/${url.split('/').filter(Boolean).pop()}/image.jpg`;
+        }
+        return url;
+      });
+    }
+
+    function renderPerfumes(items) {
+      const container = document.getElementById('catalogo');
+      const noResults = document.getElementById('sin-resultados');
+      container.innerHTML = '';
+
+      if (items.length === 0) {
+        noResults.classList.remove('hidden'); return;
+      } else {
+        noResults.classList.add('hidden');
+      }
+
+      items.forEach((p, currentPos) => {
+        const originalIndex = perfumesData.indexOf(p);
+        const nombre = p.nombre || '';
+        const marca = p.marca || '';
+        const tipo = p.tipo || '';
+        const ml = p.ml || '';
+        const genero = p.genero ? p.genero.trim() : '';
+        const pMino = formatPrecio(p.precio_minorista || p.precio);
+        const pMayo = formatPrecio(p.precio_mayorista);
+        const pDecant = formatPrecio(p.decant_5ml || p.decant); 
+        const images = parseImages(p.imagen);
+        const prioridadCarga = currentPos < 6 ? 'eager' : 'lazy';
+
+        const card = document.createElement('div');
+        card.className = "bg-[#111111] border border-zinc-800/80 rounded-xl flex flex-col justify-between overflow-hidden shadow-lg hover:border-zinc-500 transition-all cursor-pointer group";
+        
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('button')) return; 
+            abrirModal(originalIndex);
+        });
+
+        card.innerHTML = `
+          <div>
+            <div class="w-full h-52 sm:h-60 bg-zinc-900/50 flex items-center justify-center overflow-hidden relative p-2">
+              ${genero ? `<span class="absolute top-3 left-3 bg-zinc-900/90 backdrop-blur-sm border border-zinc-700 text-zinc-300 text-[9px] px-2 py-0.5 rounded uppercase tracking-widest z-10 shadow-sm">${genero}</span>` : ''}
+              <img loading="${prioridadCarga}" decoding="async" src="${images[0]}" alt="${nombre}" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400/1a1a1a/555555?text=Syrax';" class="object-contain w-full h-full opacity-90 group-hover:scale-110 transition-transform duration-500">
+            </div>
+            <div class="p-4 sm:p-5">
+              <p class="text-[10px] text-zinc-500 font-semibold tracking-wider uppercase mb-1">${marca}</p>
+              <h2 class="font-serif text-zinc-100 text-lg leading-tight mb-1 truncate">${nombre}</h2>
+              <p class="text-[11px] text-zinc-600 tracking-wide uppercase">${tipo} ${ml ? `• ${ml}` : ''}</p>
+              
+              <div class="mt-4 pt-3 border-t border-zinc-800/50 flex flex-wrap justify-between gap-y-3 gap-x-2">
+                <div class="min-w-[45%]">
+                  <span class="text-[9px] text-zinc-500 uppercase font-semibold block mb-0.5 tracking-wider">Minorista</span>
+                  <span class="text-sm font-medium text-zinc-200">${pMino || 'Consultar'}</span>
+                </div>
+                ${pMayo ? `
+                  <div class="min-w-[45%] text-right">
+                    <span class="text-[9px] text-zinc-500 uppercase font-semibold block mb-0.5 tracking-wider">Mayorista</span>
+                    <span class="text-sm font-medium text-emerald-400">${pMayo}</span>
+                  </div>
+                ` : ''}
+                ${pDecant ? `
+                  <div class="w-full bg-zinc-900/50 rounded p-1.5 mt-1 border border-zinc-800/50 flex justify-between items-center">
+                    <span class="text-[9px] text-amber-500/70 uppercase font-semibold tracking-wider">Decant 5ml</span>
+                    <span class="text-xs font-medium text-amber-400">${pDecant}</span>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+          <div class="p-4 pt-0">
+            <span class="block w-full text-center bg-zinc-800 hover:bg-zinc-700 text-white text-[10px] font-bold py-2.5 rounded uppercase tracking-wider transition-colors border border-zinc-700 pointer-events-none">
+              Ver y Agregar
+            </span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function abrirModal(index) {
+      const p = perfumesData[index];
+      if (!p) return;
+      perfumeSeleccionadoGlobal = index;
+      modalImages = parseImages(p.imagen);
+      modalCurrentIdx = 0;
+      actualizarFotoModal();
+
+      const hasMultiple = modalImages.length > 1;
+      document.getElementById('modal-prev').style.display = hasMultiple ? 'flex' : 'none';
+      document.getElementById('modal-next').style.display = hasMultiple ? 'flex' : 'none';
+
+      const thumbsContainer = document.getElementById('modal-thumbs');
+      thumbsContainer.innerHTML = '';
+      if (hasMultiple) {
+        modalImages.forEach((img, i) => {
+          const thumb = document.createElement('img');
+          thumb.src = img;
+          thumb.className = `w-14 h-14 object-cover rounded border border-zinc-700 cursor-pointer transition-all flex-shrink-0 ${i === 0 ? 'opacity-100 ring-1 ring-zinc-400' : 'opacity-40 hover:opacity-80'}`;
+          thumb.onclick = () => { modalCurrentIdx = i; actualizarFotoModal(); };
+          thumbsContainer.appendChild(thumb);
+        });
+      }
+
+      const generoTag = p.genero ? `${p.genero.trim()} • ` : '';
+      document.getElementById('modal-tags').innerText = `${p.marca || ''} • ${generoTag}${p.tipo ? `${p.tipo}` : ''} ${p.ml ? `(${p.ml})` : ''}`;
+      document.getElementById('modal-titulo').innerText = p.nombre || '';
+      document.getElementById('modal-descripcion').innerText = p.descripcion || 'Sin descripción detallada.';
+
+      const pMino = formatPrecio(p.precio_minorista || p.precio);
+      const pMayo = formatPrecio(p.precio_mayorista);
+      const pDecant = formatPrecio(p.decant_5ml || p.decant);
+      
+      const boxMino = document.getElementById('modal-box-mino');
+      const boxMayo = document.getElementById('modal-box-mayo');
+      const boxDecant = document.getElementById('modal-box-decant');
+      const selectorContainer = document.getElementById('modal-selector-container');
+      const btnAdd = document.getElementById('modal-btn-add');
+      const selectVariante = document.getElementById('modal-variante');
+      
+      selectVariante.innerHTML = '';
+
+      if (pMino) {
+        boxMino.classList.remove('hidden');
+        document.getElementById('modal-precio-mino').innerText = pMino;
+        selectVariante.innerHTML += `<option value="Minorista|${getRawPrecio(p.precio_minorista || p.precio)}">Botella Cerrada (Minorista) - ${pMino}</option>`;
+      } else {
+        boxMino.classList.add('hidden');
+      }
+
+      if (pMayo) {
+        boxMayo.classList.remove('hidden');
+        document.getElementById('modal-precio-mayo').innerText = pMayo;
+        selectVariante.innerHTML += `<option value="Mayorista|${getRawPrecio(p.precio_mayorista)}">Botella Cerrada (Mayorista) - ${pMayo}</option>`;
+      } else {
+        boxMayo.classList.add('hidden');
+      }
+
+      if (pDecant) {
+        boxDecant.classList.remove('hidden');
+        document.getElementById('modal-precio-decant').innerText = pDecant;
+        selectVariante.innerHTML += `<option value="Decant 5ml|${getRawPrecio(p.decant_5ml || p.decant)}">Decant 5ml - ${pDecant}</option>`;
+      } else {
+        boxDecant.classList.add('hidden');
+      }
+
+      if (!pMino && !pMayo && !pDecant) {
+        selectorContainer.classList.add('hidden');
+        btnAdd.innerHTML = 'Consultar Precio';
+        btnAdd.onclick = () => {
+          const msg = encodeURIComponent(`¡Hola! Quiero consultar el precio y stock de: ${p.nombre} (${p.marca}).`);
+          window.open(`https://wa.me/${TU_WHATSAPP}?text=${msg}`, '_blank');
+        };
+      } else {
+        selectorContainer.classList.remove('hidden');
+        btnAdd.innerHTML = 'Agregar al Pedido';
+        btnAdd.onclick = agregarAlCarrito;
+      }
+
+      document.body.classList.add('modal-open');
+      document.getElementById('modal-detalle').classList.remove('hidden');
+    }
+
+    function cerrarModal() {
+      if (document.getElementById('cart-panel').classList.contains('translate-x-full')) {
+        document.body.classList.remove('modal-open');
+      }
+      document.getElementById('modal-detalle').classList.add('hidden');
+    }
+
+    function navegarModalFotos(dir) {
+      modalCurrentIdx = (modalCurrentIdx + dir + modalImages.length) % modalImages.length;
+      actualizarFotoModal();
+    }
+
+    function actualizarFotoModal() {
+      const imgElem = document.getElementById('modal-img');
+      imgElem.classList.remove('opacity-90');
+      imgElem.classList.add('opacity-0');
+      
+      setTimeout(() => {
+        imgElem.src = modalImages[modalCurrentIdx];
+        imgElem.onerror = function() {
+          this.onerror=null; this.src='https://via.placeholder.com/400x400/1a1a1a/555555?text=Syrax';
+        };
+      }, 150);
+
+      const thumbs = document.getElementById('modal-thumbs').children;
+      Array.from(thumbs).forEach((t, i) => {
+        t.className = `w-14 h-14 object-cover rounded border border-zinc-700 cursor-pointer transition-all flex-shrink-0 ${i === modalCurrentIdx ? 'opacity-100 ring-1 ring-zinc-400' : 'opacity-40 hover:opacity-80'}`;
+      });
+    }
+
+    document.getElementById('modal-detalle').addEventListener('click', (e) => {
+      if (e.target.id === 'modal-detalle') cerrarModal();
+    });
+
+    document.getElementById('buscador').addEventListener('input', aplicarFiltros);
+
+    function actualizarBadge() {
+      const badge = document.getElementById('cart-badge');
+      const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+      
+      if (totalItems > 0) {
+        badge.innerText = totalItems;
+        badge.classList.remove('scale-0');
+      } else {
+        badge.classList.add('scale-0');
+      }
+      try { localStorage.setItem('syrax_cart', JSON.stringify(carrito)); } catch(e){}
+    }
+
+    function agregarAlCarrito() {
+      if (perfumeSeleccionadoGlobal === null) return;
+      const p = perfumesData[perfumeSeleccionadoGlobal];
+      const select = document.getElementById('modal-variante');
+      
+      if (!select.value) return;
+      const [formato, precioStr] = select.value.split('|');
+      const precioNum = Number(precioStr);
+
+      const itemExistente = carrito.find(i => i.index === perfumeSeleccionadoGlobal && i.formato === formato);
+      
+      if (itemExistente) {
+        itemExistente.cantidad += 1;
+      } else {
+        carrito.push({
+          index: perfumeSeleccionadoGlobal,
+          nombre: p.nombre,
+          marca: p.marca,
+          ml: p.ml,
+          formato: formato,
+          precio: precioNum,
+          imagen: parseImages(p.imagen)[0],
+          cantidad: 1
+        });
+      }
+
+      actualizarBadge();
+      renderCarritoUI();
+      cerrarModal();
+      toggleCarrito(); 
+    }
+
+    function cambiarCantidadCart(cartIndex, delta) {
+      carrito[cartIndex].cantidad += delta;
+      if (carrito[cartIndex].cantidad <= 0) {
+        carrito.splice(cartIndex, 1);
+      }
+      actualizarBadge();
+      renderCarritoUI();
+    }
+
+    function renderCarritoUI() {
+      const container = document.getElementById('cart-items');
+      const lblTotal = document.getElementById('cart-total');
+      container.innerHTML = '';
+      let total = 0;
+
+      if (carrito.length === 0) {
+        container.innerHTML = `
+          <div class="text-center text-zinc-500 mt-10">
+            <svg class="w-12 h-12 mx-auto mb-3 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <p class="text-sm">Tu carrito está vacío.</p>
+          </div>
+        `;
+        lblTotal.innerText = '$0';
+        return;
+      }
+
+      carrito.forEach((item, index) => {
+        const subtotal = item.precio * item.cantidad;
+        total += subtotal;
+
+        let colorFmt = 'text-zinc-400 bg-zinc-800';
+        if(item.formato === 'Mayorista') colorFmt = 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
+        if(item.formato === 'Decant 5ml') colorFmt = 'text-amber-400 bg-amber-400/10 border-amber-400/20';
+
+        container.innerHTML += `
+          <div class="flex gap-4 bg-zinc-900/50 p-3 rounded-lg border border-zinc-800/80 items-center">
+            <img src="${item.imagen}" class="w-16 h-16 object-contain bg-zinc-900 rounded p-1" alt="${item.nombre}">
+            <div class="flex-1">
+              <h4 class="text-sm font-semibold text-zinc-100 leading-tight">${item.nombre}</h4>
+              <p class="text-[10px] text-zinc-500 uppercase tracking-widest mt-0.5">${item.marca}</p>
+              <div class="mt-1.5 inline-block text-[9px] border px-1.5 py-0.5 rounded uppercase font-semibold ${colorFmt}">${item.formato}</div>
+              <p class="text-xs font-medium text-zinc-300 mt-1">$${item.precio.toLocaleString('es-AR')}</p>
+            </div>
+            
+            <div class="flex flex-col items-center gap-2">
+              <button onclick="cambiarCantidadCart(${index}, 1)" class="w-7 h-7 bg-zinc-800 hover:bg-zinc-700 text-white rounded flex items-center justify-center transition-colors">+</button>
+              <span class="text-sm font-bold w-4 text-center">${item.cantidad}</span>
+              <button onclick="cambiarCantidadCart(${index}, -1)" class="w-7 h-7 bg-zinc-800 hover:bg-zinc-700 text-white rounded flex items-center justify-center transition-colors">-</button>
+            </div>
+          </div>
+        `;
+      });
+
+      lblTotal.innerText = `$${total.toLocaleString('es-AR')}`;
+    }
+
+    function enviarPedidoWhatsApp() {
+      if (carrito.length === 0) return;
+      
+      let total = 0;
+      let msg = "🛒 *NUEVO PEDIDO - SYRAX*%0A%0A";
+      
+      carrito.forEach(item => {
+        const sub = item.precio * item.cantidad;
+        total += sub;
+        msg += `▪️ ${item.cantidad}x *${item.nombre}* (${item.marca})%0A`;
+        msg += `   ↳ Formato: ${item.formato} - $${item.precio.toLocaleString('es-AR')}%0A%0A`;
+      });
+      
+      msg += `*TOTAL: $${total.toLocaleString('es-AR')}*%0A%0A`;
+      msg += `(Enviado desde el catálogo web)`;
+
+      window.open(`https://wa.me/${TU_WHATSAPP}?text=${msg}`, '_blank');
+    }
+
+  </script>
+</body>
+</html>
