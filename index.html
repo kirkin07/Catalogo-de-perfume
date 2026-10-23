@@ -68,13 +68,19 @@
     body.modal-open { overflow: hidden; }
 
     /* Fondo base con degradados cálidos debajo de las partículas */
+    /* Foto de fondo fija (guardá la imagen como "fondo.jpg" junto a index.html).
+       Ajustá --fondo-oscuridad (0 a 1): más alto = fondo más oscuro y texto más legible. */
     .bg-aura {
+      --fondo-oscuridad: .86;
       position: fixed; inset: 0; z-index: -2;
-      background:
-        radial-gradient(1000px 600px at 15% -10%, rgba(122,86,54,.28), transparent 60%),
-        radial-gradient(900px 600px at 95% 10%, rgba(212,175,55,.10), transparent 55%),
-        radial-gradient(800px 700px at 50% 110%, rgba(58,37,24,.55), transparent 60%),
-        #0a0706;
+      background-color: #0a0706;
+      background-image:
+        linear-gradient(rgba(10,7,6,var(--fondo-oscuridad)), rgba(10,7,6,var(--fondo-oscuridad))),
+        radial-gradient(900px 600px at 95% 10%, rgba(212,175,55,.08), transparent 55%),
+        url("fondo.jpg");
+      background-size: cover, auto, cover;
+      background-position: center, center, center;
+      background-repeat: no-repeat;
     }
     #aroma-canvas { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
     .grain::after {
@@ -113,20 +119,13 @@
       opacity: 0; transform: translateY(26px);
     }
     .card.in { opacity: 1; transform: translateY(0); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1), border-color .35s, box-shadow .35s; }
-    .card::before {
-      content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
-      background: radial-gradient(380px circle at var(--mx) var(--my), rgba(212,175,55,.16), transparent 45%);
-      transition: opacity .3s;
-    }
-    .card:hover { border-color: rgba(212,175,55,.45); box-shadow: 0 24px 60px -20px rgba(0,0,0,.9), 0 0 40px -12px rgba(212,175,55,.35); }
-    .card:hover::before { opacity: 1; }
+    .card:hover { border-color: rgba(212,175,55,.45); }
 
     /* Imágenes: skeleton + blur-up (LQIP) con lazysizes */
     .img-wrap { position: relative; overflow: hidden; background: linear-gradient(110deg, #1a120c 30%, #2a1c12 50%, #1a120c 70%); background-size: 200% 100%; animation: shimmer 2.2s linear infinite; }
     .img-wrap.loaded { animation: none; background: radial-gradient(circle at 50% 40%, #2a1c12, #120b07 75%); }
     img.lazyload, img.lazyloading { opacity: .0; filter: blur(14px); transform: scale(1.04); }
     img.lazyloaded { opacity: 1; filter: blur(0); transform: scale(1); transition: opacity .6s ease, filter .7s ease, transform .7s ease; }
-    .card:hover img.lazyloaded { transform: scale(1.08); }
 
     /* Scrollbars */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -176,12 +175,11 @@
   <main class="relative">
     <!-- HERO -->
     <section class="max-w-4xl mx-auto px-4 sm:px-6 pt-14 sm:pt-24 pb-10 text-center">
-      <p class="animate-fadeUp text-[10px] sm:text-xs uppercase tracking-[0.5em] text-silver-400 mb-5" style="animation-delay:.05s">Colección exclusiva</p>
-      <h1 class="animate-fadeUp font-serif text-5xl sm:text-7xl leading-[1.05] font-medium" style="animation-delay:.15s">
-        El arte de <span class="text-gold italic">perdurar</span><br class="hidden sm:block"> en cada aroma
+      <h1 class="animate-fadeUp font-serif text-5xl sm:text-7xl leading-[1.05] font-medium" style="animation-delay:.1s">
+        Tu perfume <span class="text-gold italic">favorito</span> te está esperando.
       </h1>
-      <p class="animate-fadeUp mt-6 text-sm sm:text-base text-silver-500 max-w-xl mx-auto font-light leading-relaxed" style="animation-delay:.3s">
-        Fragancias seleccionadas en botella cerrada y decants. Elegí tu esencia, armá tu pedido y cerralo directo por WhatsApp.
+      <p class="animate-fadeUp mt-6 text-sm sm:text-base text-silver-400 max-w-xl mx-auto font-light leading-relaxed" style="animation-delay:.25s">
+        Perfumes originales y decants.
       </p>
       <div class="animate-fadeUp divider mt-10 max-w-md mx-auto" style="animation-delay:.45s"></div>
     </section>
@@ -521,8 +519,6 @@
       });
     }, { rootMargin: '0px 0px -40px 0px', threshold: 0.05 });
 
-    const canTilt = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
-
     function renderPerfumes(items) {
       const container = document.getElementById('catalogo');
       const noResults = document.getElementById('sin-resultados');
@@ -556,20 +552,6 @@
           abrirModal(originalIndex);
         });
 
-        // Spotlight + tilt 3D
-        if (canTilt) {
-          card.addEventListener('mousemove', (e) => {
-            const r = card.getBoundingClientRect();
-            const x = e.clientX - r.left, y = e.clientY - r.top;
-            card.style.setProperty('--mx', x + 'px');
-            card.style.setProperty('--my', y + 'px');
-            const rx = ((y / r.height) - .5) * -6;
-            const ry = ((x / r.width) - .5) * 6;
-            if (card.classList.contains('in')) card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) translateY(-4px)`;
-          });
-          card.addEventListener('mouseleave', () => { card.style.transform = ''; });
-        }
-
         // Imagen: thumbnail diminuto (instantáneo) + imagen real lazy en WebP
         const tiny = imgCDN(orig, 24, 30);
         const real = imgCDN(orig, 600, 72);
@@ -583,7 +565,7 @@
               ${genero ? `<span class="absolute top-3 left-3 z-10 bg-black/60 backdrop-blur-md border border-silver-500/25 text-silver-300 text-[9px] px-2.5 py-1 rounded-full uppercase tracking-[0.2em]">${genero}</span>` : ''}
               <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 to-transparent pointer-events-none"></div>
               <img ${imgAttrs} data-orig="${orig}" alt="${nombre}" width="600" height="600" decoding="async"
-                   class="${first ? '' : 'lazyload'} object-contain w-full h-full drop-shadow-[0_18px_22px_rgba(0,0,0,.65)] transition-transform duration-700"
+                   class="${first ? '' : 'lazyload'} object-contain w-full h-full drop-shadow-[0_18px_22px_rgba(0,0,0,.65)]"
                    onerror="imgFallback(this)" ${first ? 'onload="imgLoaded(this); this.classList.add(\'lazyloaded\')"' : ''}>
             </div>
             <div class="p-4 sm:p-5">
