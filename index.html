@@ -230,6 +230,9 @@
     </div>
   </footer>
 
+  <!-- AVISO (toast) -->
+  <div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-24 z-[90] px-5 py-3 rounded-full glass text-xs text-silver-300 tracking-wide opacity-0 translate-y-4 transition-all duration-300 pointer-events-none"></div>
+
   <!-- BOTÓN FLOTANTE WHATSAPP -->
   <a id="wa-float" href="#" target="_blank" rel="noopener noreferrer" aria-label="Consultanos por WhatsApp"
      class="fixed bottom-4 right-4 z-[45] w-12 h-12 rounded-full flex items-center justify-center btn-gold">
@@ -322,6 +325,16 @@
               <button id="modal-btn-add" class="btn-gold w-full flex items-center justify-center gap-2 text-sm font-bold py-4 rounded-full uppercase tracking-[0.2em]">
                 Agregar al Pedido
               </button>
+              <div class="grid grid-cols-2 gap-2 mt-3">
+                <button type="button" onclick="copiarLinkPerfume()" class="flex items-center justify-center gap-2 py-3 rounded-full border border-silver-500/25 hover:border-gold-500/60 text-silver-300 hover:text-gold-400 text-[11px] uppercase tracking-[0.18em] transition-all hover:bg-gold-500/5">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/></svg>
+                  Copiar link
+                </button>
+                <button type="button" onclick="compartirPerfume()" class="flex items-center justify-center gap-2 py-3 rounded-full border border-silver-500/25 hover:border-gold-500/60 text-silver-300 hover:text-gold-400 text-[11px] uppercase tracking-[0.18em] transition-all hover:bg-gold-500/5">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M16 6l-4-4-4 4M12 2v13"/></svg>
+                  Compartir
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -429,6 +442,7 @@
         actualizarBadge();
         renderCarritoUI();
         precargarImagenes(perfumesData);
+        abrirDesdeURL();
       },
       error: function() {
         const loading = document.getElementById('loading');
@@ -436,6 +450,59 @@
         loading.innerHTML = `<span style="color:#ef4444;font-weight:bold;">Error al conectar con tu Google Sheets.</span><br><br>Verificá en Google Sheets si tocaste sin querer Archivo -> Compartir -> Publicar en la web, y asegurate de que siga publicado.`;
       }
     });
+
+    /* =========================================================
+       LINKS DIRECTOS A UN PERFUME
+       El link queda así: tupagina.com/?perfume=nombre-marca
+       Al abrirlo, el catálogo muestra directamente ese perfume.
+       ========================================================= */
+    function slugPerfume(p) {
+      return `${p.nombre || ''} ${p.marca || ''}`
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    }
+    function urlPerfume(index) {
+      const p = perfumesData[index];
+      if (!p) return location.href;
+      return `${location.origin}${location.pathname}?perfume=${encodeURIComponent(slugPerfume(p))}`;
+    }
+    function abrirDesdeURL() {
+      const s = new URLSearchParams(location.search).get('perfume');
+      if (!s) return;
+      const i = perfumesData.findIndex(p => slugPerfume(p) === s);
+      if (i >= 0) abrirModal(i);
+      else mostrarToast('Ese perfume ya no está disponible');
+    }
+    function mostrarToast(texto) {
+      const t = document.getElementById('toast');
+      t.textContent = texto;
+      t.classList.remove('opacity-0', 'translate-y-4');
+      clearTimeout(mostrarToast._t);
+      mostrarToast._t = setTimeout(() => t.classList.add('opacity-0', 'translate-y-4'), 2200);
+    }
+    function copiarLinkPerfume() {
+      if (perfumeSeleccionadoGlobal === null) return;
+      const url = urlPerfume(perfumeSeleccionadoGlobal);
+      const fallback = () => {
+        const ta = document.createElement('textarea');
+        ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); mostrarToast('Link copiado ✓'); }
+        catch (e) { mostrarToast('No se pudo copiar'); }
+        document.body.removeChild(ta);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(url).then(() => mostrarToast('Link copiado ✓')).catch(fallback);
+      } else fallback();
+    }
+    function compartirPerfume() {
+      if (perfumeSeleccionadoGlobal === null) return;
+      const p = perfumesData[perfumeSeleccionadoGlobal];
+      const url = urlPerfume(perfumeSeleccionadoGlobal);
+      if (navigator.share) {
+        navigator.share({ title: `${p.nombre} - Syrax`, text: `${p.nombre} (${p.marca})`, url }).catch(() => {});
+      } else copiarLinkPerfume();
+    }
 
     function toggleFiltros() {
       document.getElementById('menu-filtros').classList.toggle('hidden');
@@ -702,6 +769,7 @@
 
       document.body.classList.add('modal-open');
       document.getElementById('modal-detalle').classList.remove('hidden');
+      try { history.replaceState(null, '', urlPerfume(index)); } catch (e) {}
     }
 
     function cerrarModal() {
@@ -709,6 +777,7 @@
         document.body.classList.remove('modal-open');
       }
       document.getElementById('modal-detalle').classList.add('hidden');
+      try { history.replaceState(null, '', location.pathname); } catch (e) {}
     }
 
     function navegarModalFotos(dir) {
